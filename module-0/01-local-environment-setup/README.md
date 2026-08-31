@@ -80,7 +80,7 @@ We will be using a variety of other libraries, tools, and languages in this cour
 
 Here’s what happens when you visit a PHP webpage that uses a database:
 
-1. You visit `mywebsite.com/search.php` in a browser. 
+1. You visit `yourwebsitename.com/search.php` in a browser. 
 2. Apache receives your request.
 3. PHP is executed on the server.
 4. PHP code connects to MariaDB and runs an SQL query.
