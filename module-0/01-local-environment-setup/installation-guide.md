@@ -42,7 +42,21 @@ This guide will help you set up your development environment for DMIT2025 - PHP/
   Ensure virtualization is enabled in your BIOS.
 
 * **WSL 2 issues**
-  Run Windows Update and ensure WSL 2 is properly installed. if you get error run this 'wsl.exe --install'
+
+Run Windows Update and make sure your system is up to date. Make sure WSL 2 is properly installed. If WSL is not installed or you receive an error indicating that WSL is unavailable, open PowerShell or Windows Terminal as Administrator and run:
+
+   ````bash
+   wsl.exe --install
+   ````
+
+
+Once installation finishes, restart your computer. After restarting, you can verify it with:
+
+  ````bash
+wsl.exe --version
+   ````
+
+
 
 * **Permission errors**
   Run **Command Prompt** as Administrator.
