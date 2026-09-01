@@ -112,7 +112,7 @@ wsl.exe --version
 
 1. Open your course workbook in **VS Code**.
 
-  Note: Make sure that `apache-dirlist.conf`, `compose.yml`, and `Dockerfile` are in the **root** of your project directory. If they are in a subdirectory, the pathing will be broken.
+  Note: Make sure that `apache-dirlist.conf`, `compose.yml`, and `Dockerfile` are in the **root** of your project directory. If they are in a subdirectory, the pathing will be broken. These three files are configuration files for our course's Docker environment. The Dockerfile tells Docker how to build the environment, compose.yml tells Docker how to run it, and apache-dirlist.conf configures our Apache web server. Keep them in the root of the workbook because the Docker setup expects them there. You do not need to edit these files.
 
 2. From the top level menu select `Terminal > New Terminal`. 
 
