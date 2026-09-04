@@ -135,7 +135,7 @@ wsl.exe --version
 6. Once the container is 'up', you will be able to access your local server in your browser using the following URI: 
 
 ```txt
-  http://localhost:8080/dmit-2025-workbook/
+  http://localhost:8080/DMIT2025-Student-Workbook-main/
 ```
 
   Note: If you change the name of your workbook, your container name (everything after `:8080/`) will need to be whatever you changed the name of your workbook to.
