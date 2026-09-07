@@ -22,22 +22,59 @@ Echo out the final output.
 
 ## Problem 2
 
-This problem is based upon the Pythagorean theorem. 
+A right triangle has three sides: `a`, `b`, and `c`.
 
-LaTeX Expression:
+The longest side, `c`, is called the **hypotenuse**.
 
-$a^2 + b^2 = c^2$
+To find `c`, we use the **Pythagorean theorem**:
 
+**a² + b² = c²**
 
-In this theorum:
+For example, if:
 
-- a is the length of the adjacent side of a right triangle
+```text
+a = 3
+b = 4
+```
 
-- b is the length of the opposite side of a right triangle
+then:
 
-- c is the length of the hypotenuse of a right triangle 
+```text
+3² + 4² = 25
 
-Write a script that takes the lengths of the adjacent and the opposite sides of a right triangle and echos out the length of the hypotenuse.
+√25 = 5
+```
+
+So:
+
+```text
+c = 5
+```
+
+### Your Task
+
+Write a PHP script that:
+
+1. Creates a variable for `a`.
+2. Creates a variable for `b`.
+3. Calculates `c`.
+4. Echoes the value of `c`.
+
+### Hint
+
+Use `**` to square a number:
+
+```php
+$a ** 2
+```
+
+Use `sqrt()` to find the square root:
+
+```php
+sqrt(25);
+```
+
+Try to combine these to calculate `c`.
 
 ---
 
