@@ -8,15 +8,36 @@ These exercises will be algorithmic (i.e. they will follow a series of logical s
 
 ## Problem 1
 
-Write a script that begins with two variables. Each variable should be a number.
+Start with two variables that contain different numbers.
 
-Echo out these variables. 
+For example:
 
-Next, figure out a way to assign the value of the first variable to the second variable and the value of the second variable to the first variable; however, you are not allowed to use numbers at this point, only variable names. 
+```php
+$a = 10;
+$b = 20;
+```
 
-Hint: Try using a third variable.
+Your goal is to **swap the values** of the two variables.
 
-Echo out the final output.
+After swapping:
+
+```text
+$a should contain 20
+$b should contain 10
+```
+
+### Your Task
+
+Write a PHP script that:
+
+1. Creates two variables with different numbers.
+2. Echoes the values before the swap.
+3. Swaps the values of the two variables.
+4. Echoes the values after the swap.
+
+### Rule
+
+When swapping the values, do not type the numbers again. Use only variables.
 
 ---
 
@@ -78,7 +99,7 @@ Try to combine these to calculate `c`.
 
 ---
 
-## Problem 3
+
 
 ## Problem 3
 
