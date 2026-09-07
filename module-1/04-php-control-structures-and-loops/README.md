@@ -1,237 +1,827 @@
-# Comparison Operators, Logical Operators, Control Structures, & Loops
+# Comparison Operators, Control Structures, & Loops
 
-## Comparison Operators
+So far, we have learned how to create variables, work with values, perform calculations, and combine PHP with HTML.
 
-Determining whether something is TRUE or FALSE is the root of all decision making in programming languages. Comparison operators, also known as boolean operators, allow us to compare variables or other values and evaluate them.
+Now we are going to make our programs **make decisions** and **repeat tasks**.
 
-<br>
+In this lesson, we will learn how to:
 
-### Equality
+- compare values
+- make decisions with `if`, `elseif`, and `else`
+- combine multiple conditions
+- use conditions with HTML
+- use `switch` statements
+- repeat code with loops
 
-We can evaluate equality with `==`. This will check to see whether the values on either side of the operator are equivalents. 
+---
 
-```PHP
-    42 == 42; // This would evaluate as TRUE.
-    2 + 2 == 5; // This would evaluate as FALSE.
-    '1' == 1; // This would evaluate as TRUE.
+# Boolean Values
+
+Before we start making decisions, we need to understand boolean values.
+
+A boolean has only two possible values:
+
+```php
+true
+false
 ```
 
-In our last example, we compared a character to an integer; because PHP is a weak-typed language, they would be considered equal and the statement would evaluate as true.
+We can think of these as **yes/no** or **on/off** values.
 
-So, what if we want to avoid that? We can use an identical comparison operator, or `===`, which will also check for data types.
+When PHP compares two values, the result of that comparison is either `true` or `false`.
 
-```PHP
-    1 === 1; // This would evaluate as TRUE.
-    '1' === 1; // This would evaluate as FALSE.
+For example:
+
+```php
+10 > 5; // true
+
+10 < 5; // false
 ```
 
-<br>
+These comparisons become useful when we start making decisions with our code.
 
-### Greater Than & Less Than
+---
 
-When dealing with numbers, we can also compare their sizes.
+# Comparison Operators
 
-| Operator | Meaning                  |
-|:--------:|--------------------------|
-|     >    | greater than             |
-|     <    | less than                |
-|    >=    | greater than or equal to |
-|    <=    | less than or equal to    |
+Comparison operators allow us to compare two values.
 
-Let's look at a few examples.
+For example:
 
-```PHP
-    2 > 2; // This would evaluate as FALSE.
-    2 >= 2; // This would evaluate as TRUE.
+```php
+$age = 20;
+
+$age >= 18;
 ```
 
-<br>
+PHP asks:
 
-### NOT or Negation
+> Is `$age` greater than or equal to `18`?
 
-We can also check to see if two values are not equal with the negation or not operator. 
+Since `$age` contains `20`, the comparison is `true`.
 
-| Operator | Meaning                          |
-|:--------:|----------------------------------|
-|    !=    | not equal                        |
-|    !==   | not identical                    |
-|    <>    | alternative syntax for not equal |
+Here are the comparison operators we will commonly use:
 
-Let's look at an example.
+| Operator | Meaning |
+| --- | --- |
+| `==` | equal value |
+| `===` | equal value and data type |
+| `!=` | not equal |
+| `!==` | not identical |
+| `>` | greater than |
+| `<` | less than |
+| `>=` | greater than or equal to |
+| `<=` | less than or equal to |
 
-```PHP
-    7 != 7; // This would evaluate as FALSE.
+---
+
+## Equal `==`
+
+The `==` operator checks whether two values are equal.
+
+```php
+10 == 10; // true
+
+10 == 5; // false
 ```
 
-We can also negate statements within parentheses. 
 
-```PHP
-    !(7 == 7); // This is looking to see if what's inside of the () is NOT TRUE, or FALSE.
+---
+
+## Identical `===`
+
+The `===` operator checks both the **value** and the **data type**.
+
+```php
+10 === 10; // true
+
+'10' === 10; // false
 ```
 
-<br>
+The second comparison is `false` because:
 
-## Logical Operators
+```text
+'10' is a string
+10 is an integer
+```
 
-Logical operators combine comparison statements and try to evaluate their overall truthfulness. 
+Their values look similar, but their data types are different.
 
-No matter how many comparison statements are included, this will still result in only one final boolean evaluation (TRUE or FALSE).
+---
 
-| Operator | Meaning                                                    |
-|:--------:|------------------------------------------------------------|
-|    &&    | AND (all parts of the statements must be TRUE)             |
-|   \|\|   | OR (at least one of the statements must be TRUE)           |
-|    XOR   | EXCLUSIVE OR (one or the other must be TRUE, but not both) |
+## Not Equal
 
-Note that you can use `AND` and `OR` as logical operators in PHP; however, their precedence is _lower than_ `=`, meaning assignment statements will be evaluated first, so this can lead to some unintended results. 
+We can check if values are different using `!=`.
 
-<br>
+```php
+10 != 5; // true
 
-## Control Structures
+10 != 10; // false
+```
 
-Control structures are the backbone of decision-making in programs. They will execute certain parts of the code only if certain conditions are met.
 
-An IF statement is one of the most common control structures. It will check to see if a certain condition is TRUE; if it is, it will execute a block of code. 
+---
 
-```PHP
-    if ($name == "Honey") {
-        echo "Honey, I'm home!";
+## Comparing Numbers
+
+We can also compare the size of numbers.
+
+```php
+10 > 5;   // true
+10 >= 10; // true
+```
+
+These comparisons are commonly used when making decisions.
+
+---
+
+# `if` Statements
+
+An `if` statement allows our program to make a decision.
+
+The code inside the `if` statement runs only when its condition is `true`.
+
+```php
+$age = 20;
+
+if ($age >= 18) {
+    echo "You are an adult.";
+}
+```
+
+PHP checks:
+
+```php
+$age >= 18
+```
+
+Since `20` is greater than or equal to `18`, the condition is `true`.
+
+Therefore, PHP runs:
+
+```php
+echo "You are an adult.";
+```
+
+If the condition were `false`, nothing inside the `{ }` would run.
+
+---
+
+# `else`
+
+Sometimes we want something different to happen when the condition is `false`.
+
+We can use `else`.
+
+```php
+$age = 16;
+
+if ($age >= 18) {
+    echo "You are an adult.";
+} else {
+    echo "You are under 18.";
+}
+```
+
+PHP first checks:
+
+```php
+$age >= 18
+```
+
+If it is `true`, the first block runs.
+
+If it is `false`, the `else` block runs.
+
+---
+
+# `elseif`
+
+Sometimes there are more than two possible outcomes.
+
+We can use `elseif` to check another condition.
+
+```php
+$grade = 75;
+
+if ($grade >= 80) {
+    echo "Great job!";
+} elseif ($grade >= 50) {
+    echo "You passed.";
+} else {
+    echo "You did not pass.";
+}
+```
+
+PHP checks the conditions from top to bottom.
+
+Once PHP finds a condition that is `true`, it runs that block and skips the remaining conditions.
+
+---
+
+# Logical Operators
+
+Sometimes one comparison is not enough.
+
+Logical operators allow us to combine multiple conditions.
+
+The three logical operators we will commonly use are:
+
+| Operator | Meaning |
+| --- | --- |
+| `&&` | AND |
+| `\|\|` | OR |
+| `!` | NOT |
+
+---
+
+## AND `&&`
+
+AND means **both conditions must be true**.
+
+```php
+$age = 20;
+$has_ticket = true;
+
+if ($age >= 18 && $has_ticket === true) {
+    echo "You may enter.";
+}
+```
+
+For this code to run:
+
+- the person must be at least 18
+- the person must have a ticket
+
+Both conditions must be `true`.
+
+---
+
+## OR `||`
+
+OR means **at least one condition must be true**.
+
+```php
+$is_student = true;
+$is_senior = false;
+
+if ($is_student || $is_senior) {
+    echo "You receive a discount.";
+}
+```
+
+Only one of the conditions needs to be `true`.
+
+---
+
+## NOT `!`
+
+The `!` operator means **NOT**.
+
+It reverses a boolean value.
+
+```php
+$is_raining = false;
+
+if (!$is_raining) {
+    echo "Let's go outside.";
+}
+```
+
+Here:
+
+```php
+!$is_raining
+```
+
+means:
+
+> If it is NOT raining.
+
+---
+
+# Nested `if` Statements
+
+An `if` statement can also exist inside another `if` statement.
+
+This is called a **nested `if` statement**.
+
+```php
+$age = 20;
+$has_ticket = true;
+
+if ($age >= 18) {
+
+    if ($has_ticket) {
+        echo "You may enter.";
     }
+
+}
 ```
 
-In this case, nothing will happen if the condition evaluates as FALSE. Here, we can add an ELSE statement. If the first condition is not met, the second block of code will be executed. 
+The second `if` statement is only checked if the first condition is `true`.
 
-```PHP
-    if ($name == "Honey") {
-        echo "Honey, I'm home!";
-    } else {
-        echo "Who are you, and what are you doing in my house?";
-    }
+Sometimes the same logic can be written more simply with `&&`:
+
+```php
+if ($age >= 18 && $has_ticket) {
+    echo "You may enter.";
+}
 ```
 
-If we want to add a little more complexity, we could add an nested IF statement. This will only execute if both conditions are met (i.e. evaluated as TRUE).
+Both approaches are valid. Which one you use depends on the problem you are trying to solve.
 
-```PHP
-    if ($name == "Honey") {
-        echo "Honey, I'm home!";
-        // This is one level in. We know the $name is "Honey".
-        // Notice the negation just outside of the parenthesis.
-        if !($face == "Dirty") {
-            echo "Who's a good girl?";
-        } else {
-            echo "Have you been digging again?";
-        }
-    // We're back to the outermost level. The $name is NOT "Honey".
-    } else {
-        echo "Who are you, and what are you doing in my house?";
-    }
+---
+
+# Using Conditions with HTML
+
+In Lesson 1, we learned that PHP and HTML can exist in the same `.php` file.
+
+Conditions can also control which HTML appears on the page.
+
+For example:
+
+```php
+<?php
+
+$logged_in = true;
+
+?>
+
+<?php if ($logged_in): ?>
+
+    <p>Welcome back!</p>
+
+<?php else: ?>
+
+    <p>Please log in.</p>
+
+<?php endif; ?>
 ```
 
-<br>
+If `$logged_in` is `true`, the browser receives:
 
-### Yoda Conditions
-
-Although they're a little harder to read, some developers like to write something called 'Yoda Conditions'. This means that when writing a condition, the value goes on the left-hand side and the variable goes on the right-hand side. 
-
-```PHP
-    if ("Honey" == $name) {
-        echo "Honey, I'm home!";
-    }
+```html
+<p>Welcome back!</p>
 ```
 
-This is flipped around from when we assign values to a variable -- much like speaking backwards. This is to help prevent you from accidentally assigning a value rather than evaluating it. 
+If `$logged_in` is `false`, the browser receives:
 
-<br>
-
-### Switch Statements
-
-Another way of structuring our decisions is through switch statements. Switch statements allow you to do multiple things based upon the value of a single variable, not just one or the other thing (like if and else).
-
-```PHP
-    $total = 42;
-
-    switch ($total) {
-        case 1:
-            echo 'The total is 1.';
-            break;
-        case 2:
-            echo 'The total is 2.';
-            break;
-        default:
-            echo 'The total is less than 1 or greater than 2.';
-    }
+```html
+<p>Please log in.</p>
 ```
 
-Every time we use the keyword `case`, we're really evaluating a single statement and seeing if it's true. If it is true, we'll carry on the instructions immediately underneath; if it's not true, we'll look at the next `case`. If none of these cases are true, the `default` case will be executed. 
+This syntax can be easier to read when PHP conditions contain larger sections of HTML.
 
-Unlike `if` statements, a `switch` statement will not terminate upon finding a true statement. Because of this, we need `break` statements in order to exit out of the switch statement for us. 
+---
 
-    Note: You do not need a `break` for the `default` case, as it's the last statement before exiting out of the switch entirely.
+# `switch` Statements
 
-`switch` statements also have fall-through cases (where multiple cases can be evaluated at once by not including a `break`) and an alternative syntax that doesn't require curly braces.
+Sometimes we want to compare one variable against several possible values.
 
-```PHP
-    $total = 8;
+A `switch` statement can help organize this.
 
-    switch ($total) {
-        case 1:
-        case 2:
-        case 3:
-            echo 'The total is less than 4.';
-        default:
-            echo 'The total is equal to or greater than 4.';
-    }
+```php
+$day = "Monday";
+
+switch ($day) {
+
+    case "Monday":
+        echo "Start of the week.";
+        break;
+
+    case "Friday":
+        echo "Almost the weekend!";
+        break;
+
+    default:
+        echo "Another day.";
+}
 ```
 
-<br>
+PHP compares `$day` against each `case`.
 
-## Loops
+In this example:
 
-Loops allow you to do the same thing over and over again. They will repeatedly execute a block of code some condition becomes FALSE. 
-
-There are a few different types of loops, but while come condition is TRUE, they will continue to execute a block of code. All loops must have a condition that moves towards being false, or else you will get caught in an *infinite loop*. An infinite loop will crash your application because it will never allow the program to exit and move on.
-
-<br>
-
-### Do / While Loops
-
-A general purposes loop, this structure will *do* a certain thing *while* a condition is still TRUE.
-
-```PHP
-    $i = 0;
-
-    do {
-        echo "<p>The current loop number is $i.</p>";
-        $i++;
-    } while ($i < 10);
+```php
+$day = "Monday";
 ```
 
-What is `i`? It's an integer that counts the number of times a loop has been executed. Put simply, it's the 'iteration' that the loop is currently on. There must be a change to this counter (in this case, we increment it by one every time the loop is executed), or else it will never move towards FALSE and the program will never exit out of the loop.
+matches:
 
-<br>
-
-### For Loops
-
-`for` loops are specifically made for enumeration. They're especially helpful if you know exactly how many times you want the loop to be executed. Here's the above loop, rewritten as a `for` loop.
-
-```PHP
-    for ($i = 0; $i < 10; $i++){
-        echo "<p>The current loop number is $i.</p>";
-    }
+```php
+case "Monday":
 ```
 
-This has all of the same components compressed into a single line. 
+so PHP displays:
 
-`$i = 0` is the starting assignment, or the number we want to start our counter at.
+```text
+Start of the week.
+```
 
-`$i < 10` is the test or condition. If this is evaluated as FALSE, the program exits the loop; if it evaluates as TRUE, the loop continues.
+---
 
-`$i++` is the change (incrementer, if we want the counter to increase, or decrementer, if we want the counter to decrease). Without this change, we would be caught in an infinite loop. 
+## `case`
 
-<br>
+Each `case` represents a possible value.
 
-### For Each Loops
+```php
+case "Monday":
+```
 
-These loops are made specifically for working with arrays. They will go through each item in an indexed array or each key and value in each associative array and do something with the entry. 
+PHP checks whether the value used by the `switch` matches that case.
 
-With these loops, we don't have to worry about a change, because they simply stop when the program reaches the end of the array. 
+---
+
+## `break`
+
+The `break` statement tells PHP to leave the `switch`.
+
+```php
+case "Monday":
+    echo "Start of the week.";
+    break;
+```
+
+Without `break`, PHP can continue into the next case.
+
+For now, we will normally use `break` after each case.
+
+---
+
+## `default`
+
+The `default` block runs when none of the cases match.
+
+```php
+default:
+    echo "Another day.";
+```
+
+You can think of `default` as being similar to the final `else` in an `if` statement.
+
+---
+
+# Loops
+
+Loops allow us to repeat code.
+
+Instead of writing:
+
+```php
+echo "Hello<br>";
+echo "Hello<br>";
+echo "Hello<br>";
+echo "Hello<br>";
+echo "Hello<br>";
+```
+
+we can use a loop.
+
+```php
+for ($i = 1; $i <= 5; $i++) {
+    echo "Hello<br>";
+}
+```
+
+Both examples display `"Hello"` five times.
+
+Loops are useful whenever we need to repeat the same task.
+
+---
+
+# `for` Loops
+
+A `for` loop is useful when we know how many times we want something to repeat.
+
+```php
+for ($i = 1; $i <= 5; $i++) {
+    echo $i . "<br>";
+}
+```
+
+This displays:
+
+```text
+1
+2
+3
+4
+5
+```
+
+A `for` loop has three important parts:
+
+```php
+for ($i = 1; $i <= 5; $i++)
+```
+
+We can break it down like this:
+
+```text
+$i = 1       Start at 1
+
+$i <= 5      Continue while this is true
+
+$i++         Add 1 after each loop
+```
+
+---
+
+## Incrementing with `++`
+
+The `++` operator increases a number by `1`.
+
+```php
+$i++;
+```
+
+This is a shorter way of writing:
+
+```php
+$i = $i + 1;
+```
+
+For example:
+
+```php
+$i = 1;
+
+$i++;
+
+echo $i;
+```
+
+This displays:
+
+```text
+2
+```
+
+---
+
+## Infinite Loops
+
+A loop needs a way to eventually stop.
+
+For example:
+
+```php
+for ($i = 1; $i <= 5; $i++) {
+    echo $i;
+}
+```
+
+`$i` increases after every loop.
+
+Eventually:
+
+```php
+$i <= 5
+```
+
+becomes `false`, and the loop stops.
+
+If a loop never reaches a stopping point, it can become an **infinite loop**.
+
+Always make sure your loop can eventually end.
+
+---
+
+# `foreach` Loops
+
+A `foreach` loop is designed for working with arrays.
+
+Suppose we have an array:
+
+```php
+$colours = ["Red", "Green", "Blue"];
+```
+
+We can go through every item using `foreach`.
+
+```php
+foreach ($colours as $colour) {
+    echo $colour . "<br>";
+}
+```
+
+This displays:
+
+```text
+Red
+Green
+Blue
+```
+
+Each time the loop runs, `$colour` contains the next value from the array.
+
+You can think of:
+
+```php
+foreach ($colours as $colour)
+```
+
+as:
+
+> For each item in `$colours`, temporarily call that item `$colour`.
+
+---
+
+## Associative Arrays with `foreach`
+
+We can also use `foreach` with associative arrays.
+
+```php
+$student = [
+    "name" => "John",
+    "program" => "DMIT",
+    "year" => 1
+];
+```
+
+We can access both the key and value:
+
+```php
+foreach ($student as $key => $value) {
+    echo $key . ": " . $value . "<br>";
+}
+```
+
+This would display:
+
+```text
+name: John
+program: DMIT
+year: 1
+```
+
+---
+
+# `do...while` Loops
+
+Another type of loop is a `do...while` loop.
+
+```php
+$i = 1;
+
+do {
+
+    echo $i . "<br>";
+
+    $i++;
+
+} while ($i <= 5);
+```
+
+This displays:
+
+```text
+1
+2
+3
+4
+5
+```
+
+A `do...while` loop checks its condition **after** running the code.
+
+This means the code inside the loop will always run at least once.
+
+For example:
+
+```php
+$i = 10;
+
+do {
+
+    echo $i;
+
+} while ($i < 5);
+```
+
+Even though:
+
+```php
+$i < 5
+```
+
+is `false`, the loop still runs once because the condition is checked at the end.
+
+---
+
+# A Few Useful PHP Functions
+
+PHP includes many built-in functions that can help us solve common problems.
+
+Here are a few that we will use later.
+
+---
+
+## `random_int()`
+
+`random_int()` can generate a random integer.
+
+For example:
+
+```php
+$roll = random_int(1, 6);
+
+echo $roll;
+```
+
+This generates a random number from `1` through `6`.
+
+That means `$roll` could contain:
+
+```text
+1, 2, 3, 4, 5, or 6
+```
+
+We can change the range:
+
+```php
+$roll = random_int(1, 20);
+```
+
+Now PHP generates a random number from `1` through `20`.
+
+---
+
+## `max()`
+
+`max()` finds the largest value.
+
+```php
+$highest = max(4, 6);
+
+echo $highest;
+```
+
+This displays:
+
+```text
+6
+```
+
+---
+
+## `min()`
+
+`min()` finds the smallest value.
+
+```php
+$lowest = min(4, 6);
+
+echo $lowest;
+```
+
+This displays:
+
+```text
+4
+```
+
+---
+
+# Putting It Together
+
+We can combine the concepts from this lesson.
+
+```php
+<?php
+
+$roll = random_int(1, 6);
+
+?>
+
+<h1>Dice Roll</h1>
+
+<p>You rolled: <?= $roll ?></p>
+
+<?php if ($roll === 6): ?>
+
+    <p>Great roll!</p>
+
+<?php elseif ($roll === 1): ?>
+
+    <p>Bad luck!</p>
+
+<?php else: ?>
+
+    <p>Keep rolling!</p>
+
+<?php endif; ?>
+```
+
+In this example:
+
+1. `random_int()` generates a number.
+2. The value is stored in `$roll`.
+3. PHP displays the value inside the HTML.
+4. `if`, `elseif`, and `else` decide which message to display.
+
+This combines PHP variables, HTML, comparisons, and control structures together.
+
+---
+
