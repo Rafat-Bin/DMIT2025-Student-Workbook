@@ -1,8 +1,8 @@
-# PHP Basics 
+# PHP Basics
 
-PHP is a programming language that allows you to add back-end functionality to your web applications and create dynamic websites.
+PHP is a programming language used to add back-end functionality to websites and web applications.
 
-It often works alongside other technologies such as:
+It often works alongside technologies such as:
 
 ```text
 HTML       → structure
@@ -24,13 +24,11 @@ $name = "Rafat";
 echo "<h1>Hello $name</h1>";
 ```
 
-The server processes the PHP and produces something like:
+The server processes the PHP and sends the resulting HTML to the browser:
 
 ```html
 <h1>Hello Rafat</h1>
 ```
-
-The browser receives the resulting HTML.
 
 The user normally does **not** receive the original PHP source code.
 
@@ -55,24 +53,21 @@ Because PHP runs on the server, it can be used for things such as:
 - Handling sessions
 - Processing user input
 - Generating dynamic HTML
-- Working with authentication systems
-
+- Authentication
 
 ---
 
 # Getting Started
 
-To use PHP, there are a few important requirements.
-
-## 1. PHP Needs a Server
-
-PHP requires a PHP-enabled server or development environment.
+## PHP Needs a Server
 
 A web browser does not execute PHP source code by itself.
 
-## 2. Use the `.php` File Extension
+PHP requires a PHP-enabled server or development environment.
 
-PHP code should normally be written inside a file ending with:
+## Use the `.php` File Extension
+
+PHP files normally end with:
 
 ```text
 .php
@@ -84,18 +79,127 @@ Examples:
 index.php
 about.php
 students.php
-profile.php
 ```
 
-A file ending in:
+A `.html` file is normally treated as HTML rather than processed as PHP.
+
+
+
+# Running PHP Code
+
+We will write PHP code in **Visual Studio Code** and view the result in a web browser.
+
+Because PHP runs on a server, we do not normally open a `.php` file directly in the browser.
+
+For this course, **Docker** provides the local server that runs our PHP code.
+
+## 1. Open the Project in VS Code
+
+Open the project folder in Visual Studio Code.
+
+For example, we may work with a PHP file such as:
 
 ```text
-.html
+demo/basic.php
 ```
 
-will normally be treated as an HTML file rather than processed as PHP.
+Write some PHP:
 
-## 3. PHP Tags
+```php
+<?php
+
+echo "Hello PHP";
+```
+
+Save the file.
+
+## 2. Make Sure Docker Is Running
+
+Open **Docker Desktop** and make sure Docker is running in the background.
+
+Docker provides the local server that processes our PHP code.
+
+```text
+VS Code
+   ↓
+PHP file
+   ↓
+Docker
+   ↓
+Local server
+   ↓
+Browser
+```
+
+## 3. Open the PHP File in the Browser
+
+Open your browser and go to:
+
+```text
+http://localhost:8080/DMIT2025-Student-Workbook-main/demo/basic.php
+```
+
+Breaking down the URL:
+
+```text
+http://localhost:8080/
+        ↓
+Local server running on port 8080
+
+DMIT2025-Student-Workbook-main/
+        ↓
+Project folder
+
+demo/
+        ↓
+Folder containing our example
+
+basic.php
+        ↓
+PHP file being run
+```
+
+If `basic.php` contains:
+
+```php
+<?php
+
+$name = "Rafat";
+
+echo "Hello $name";
+```
+
+the browser will display:
+
+```text
+Hello Rafat
+```
+
+## 4. Edit, Save, and Refresh
+
+The normal workflow is:
+
+```text
+Write code in VS Code
+        ↓
+Save the PHP file
+        ↓
+Open or refresh the page in the browser
+        ↓
+See the result
+```
+
+After changing your PHP code:
+
+1. Save the file in VS Code.
+2. Return to the browser.
+3. Refresh the page.
+4. View the updated result.
+
+
+
+
+## PHP Tags
 
 PHP code begins with:
 
@@ -111,19 +215,9 @@ Example:
 echo "Hello";
 ```
 
-PHP mode can also be closed with:
+PHP mode can be closed with:
 
 ```php
-?>
-```
-
-Example:
-
-```php
-<?php
-
-echo "Hello";
-
 ?>
 ```
 
@@ -131,23 +225,10 @@ Think of it like this:
 
 ```text
 <?php  → enter PHP mode
-
 ?>     → leave PHP mode
 ```
 
-## Common Mistake
 
-Incorrect:
-
-```text
-<? php
-```
-
-Correct:
-
-```php
-<?php
-```
 
 There must be **no space** between `?` and `php`.
 
@@ -155,20 +236,15 @@ There must be **no space** between `?` and `php`.
 
 No.
 
-If a file contains only PHP, the closing PHP tag is commonly omitted.
-
-Example:
+If a file contains only PHP, the closing tag is commonly omitted.
 
 ```php
 <?php
 
 echo "Hello";
-echo "World";
 ```
 
-When PHP and HTML are mixed together, the closing tag can be useful.
-
-Example:
+When PHP and HTML are mixed together, the closing tag is useful.
 
 ```php
 <?php
@@ -188,8 +264,6 @@ Find the error:
 <? php
 
 echo "Hello";
-
-?>
 ```
 
 <details>
@@ -197,10 +271,10 @@ echo "Hello";
 
 The opening PHP tag is incorrect.
 
-Correct:
-
 ```php
 <?php
+
+echo "Hello";
 ```
 
 </details>
@@ -209,31 +283,19 @@ Correct:
 
 # `echo` — Outputting Information
 
-One of the first things to learn in PHP is:
+`echo` is used to output information.
 
 ```php
-echo
-```
-
-`echo` means:
-
-> Output something.
-
-Example:
-
-```php
-<?php
-
 echo "Hello World";
 ```
 
-Browser output:
+Output:
 
 ```text
 Hello World
 ```
 
-You can also output a number:
+You can also output numbers:
 
 ```php
 echo 25;
@@ -245,54 +307,43 @@ Output:
 25
 ```
 
-You can output text:
+## Strings Need Quotes
+
+Text values are called **strings** and are written inside quotation marks.
 
 ```php
-echo "Rafat";
+echo "Hello";
+echo 'Hello';
+```
+
+Numbers normally do not need quotation marks.
+
+```php
+echo 25;
+```
+
+Compare:
+
+```php
+echo 25;    // number
+echo "25";  // string
+```
+
+## Multiple Values With `echo`
+
+`echo` can output multiple values separated by commas.
+
+```php
+$name = "Rafat";
+
+echo "Hello ", $name;
 ```
 
 Output:
 
 ```text
-Rafat
+Hello Rafat
 ```
-
-
-## Strings Need Quotes
-
-Text values should be written inside quotation marks:
-
-```php
-echo "Hello";
-```
-
-or:
-
-```php
-echo 'Hello';
-```
-
-Numbers usually do not need quotation marks:
-
-```php
-echo 25;
-```
-
-Compare these:
-
-```php
-echo 25;
-```
-
-`25` is a number.
-
-But:
-
-```php
-echo "25";
-```
-
-`"25"` is a string containing the characters `2` and `5`.
 
 ## Exercise
 
@@ -315,25 +366,17 @@ I am learning PHP
 
 # Semicolons `;`
 
-PHP statements usually end with a semicolon.
-
-Example:
+PHP statements normally end with a semicolon.
 
 ```php
 echo "Hello";
 ```
 
-The semicolon:
+The semicolon means:
 
-```text
-;
-```
+> This statement is finished.
 
-means:
-
-> This PHP statement is finished.
-
-Example:
+For example:
 
 ```php
 $name = "Rafat";
@@ -343,220 +386,12 @@ echo $name;
 echo $age;
 ```
 
-It is more accurate to say that a semicolon ends a **statement**, not necessarily a line.
-
-This is technically valid:
-
-```php
-$name = "Rafat"; $age = 25; echo $name;
-```
-
-But this is much easier to read:
-
-```php
-$name = "Rafat";
-$age = 25;
-
-echo $name;
-```
-
-## Exercise
-
-What is wrong here?
-
-```php
-$name = "Rafat"
-echo $name;
-```
-
-<details>
-<summary>Answer</summary>
-
-The first statement is missing a semicolon.
-
-Correct:
-
-```php
-$name = "Rafat";
-echo $name;
-```
-
-</details>
-
----
-
-# Formatting Output
-
-Consider this code:
-
-```php
-echo "Rafat";
-echo "Hello";
-echo "PHP";
-```
-
-You might expect:
-
-```text
-Rafat
-Hello
-PHP
-```
-
-But the browser will display:
-
-```text
-RafatHelloPHP
-```
-
-`echo` does not automatically add a visible line break.
-
-## Using `<br>`
-
-Because PHP often outputs HTML, you can use:
-
-```html
-<br>
-```
-
-Example:
-
-```php
-echo "Rafat<br>";
-echo "Hello<br>";
-echo "PHP";
-```
-
-Browser output:
-
-```text
-Rafat
-Hello
-PHP
-```
-
-## Using `\n`
-
-PHP also supports the newline character:
-
-```php
-echo "Hello\n";
-echo "World";
-```
-
-`\n` is useful for:
-
-- Terminal output
-- Plain-text output
-- Text files
-
-However, HTML normally collapses whitespace, so `\n` usually does not create a visible line break in the rendered webpage.
-
-For visible browser line breaks, use:
-
-```php
-echo "<br>";
-```
-
-## Using HTML Elements
-
-Instead of using many `<br>` tags, you can use proper HTML elements.
-
-Example:
-
-```php
-echo "<p>Rafat</p>";
-echo "<p>Hello</p>";
-echo "<p>PHP</p>";
-```
-
----
-
-# Comments
-
-Comments are notes written inside your code.
-
-PHP ignores comments when the program runs.
-
-## Single-Line Comments
-
-Use:
-
-```php
-//
-```
-
-Example:
-
-```php
-// Store the student's name
-$name = "Rafat";
-```
-
-You can also put a comment after code:
-
-```php
-$name = "Rafat"; // Student name
-```
-
-## Multi-Line Comments
-
-Use:
-
-```php
-/*
-...
-*/
-```
-
-Example:
-
-```php
-/*
-This program calculates
-a student's final score.
-*/
-
-$score = 85;
-```
-
-## Why Use Comments?
-
-Comments are useful for explaining code.
-
-For example:
-
-```php
-// Apply a 5% discount
-$discount = 0.05;
-```
-
-A good comment usually explains **why**, rather than describing something obvious.
-
-## Exercise
-
-Comment out this line:
-
-```php
-echo "This should not appear";
-```
-
-<details>
-<summary>Answer</summary>
-
-```php
-// echo "This should not appear";
-```
-
-</details>
 
 ---
 
 # Variables
 
-Variables allow us to store values and use them later.
-
-Example:
+Variables store values that can be used later.
 
 ```php
 $name = "Rafat";
@@ -571,19 +406,7 @@ $name
 └──────────┘
 ```
 
-The variable:
-
-```php
-$name
-```
-
-refers to the stored value:
-
-```text
-Rafat
-```
-
-You can then output it:
+You can output the stored value:
 
 ```php
 echo $name;
@@ -595,13 +418,17 @@ Output:
 Rafat
 ```
 
-## Breaking Down a Variable
+## Assignment Operator `=`
+
+In:
 
 ```php
 $name = "Rafat";
 ```
 
-can be understood like this:
+the equals sign `=` is the **assignment operator**.
+
+It assigns the value on the right to the variable on the left.
 
 ```text
 $name    =    "Rafat";
@@ -609,27 +436,11 @@ $name    =    "Rafat";
 variable assign  value
 ```
 
-The equals sign:
-
-```text
-=
-```
-
-is called the **assignment operator**.
-
-It assigns the value on the right to the variable on the left.
-
 ---
 
 # PHP Variable Rules
 
-PHP variables always begin with:
-
-```text
-$
-```
-
-Examples:
+PHP variables begin with `$`.
 
 ```php
 $name = "Rafat";
@@ -657,11 +468,18 @@ $first-name
 
 After `$`, the variable name must begin with a letter or underscore.
 
+Variable names are also case-sensitive.
+
+```php
+$name = "Rafat";
+$Name = "Jack";
+```
+
+These are two different variables.
+
 ## Camel Case
 
-A common variable naming style is called **camelCase**.
-
-Examples:
+A common naming style is **camelCase**.
 
 ```php
 $firstName = "Rafat";
@@ -674,25 +492,11 @@ $courseName = "PHP Basics";
 
 # Variables Can Change
 
-Variables are called variables because their values can change.
-
-Example:
+Variables can store new values.
 
 ```php
 $age = 20;
 
-echo $age;
-```
-
-Output:
-
-```text
-20
-```
-
-Now change the value:
-
-```php
 $age = 21;
 
 echo $age;
@@ -708,9 +512,7 @@ The newer value replaces the older value.
 
 ## Using the Existing Value
 
-You can calculate a new value using the existing one.
-
-Example:
+A variable's existing value can be used to calculate a new value.
 
 ```php
 $age = 20;
@@ -720,14 +522,10 @@ $age = $age + 1;
 echo $age;
 ```
 
-PHP evaluates it like this:
+Output:
 
 ```text
-$age = $age + 1
-
-$age = 20 + 1
-
-$age = 21
+21
 ```
 
 ## Exercise
@@ -753,39 +551,147 @@ echo $score;
 
 ---
 
-# Strings and Quotes
+# Data Types in PHP
 
-A string is a collection of characters, usually used to represent text.
+Different kinds of values have different data types.
 
-Examples:
+The main types in this lesson are:
+
+| Data Type | Meaning | Example |
+| --- | --- | --- |
+| String | Text | `"Rafat"` |
+| Integer | Whole number | `25` |
+| Float | Decimal number | `19.99` |
+| Boolean | `true` or `false` | `true` |
+| Array | Multiple values | `["A", "B"]` |
+
+## Strings
+
+Strings represent text.
 
 ```php
 $name = "Rafat";
 $city = "Edmonton";
-$message = "Hello World";
 ```
+
+## Integers
+
+Integers are whole numbers.
+
+```php
+$age = 25;
+$temperature = -10;
+```
+
+## Floats
+
+Floats contain decimal values.
+
+```php
+$price = 19.99;
+$average = 87.25;
+```
+
+## Booleans
+
+A Boolean has two possible values:
+
+```php
+true
+false
+```
+
+Example:
+
+```php
+$isStudent = true;
+$isAdmin = false;
+```
+
+Do not confuse:
+
+```php
+$isStudent = true;
+```
+
+with:
+
+```php
+$isStudent = "true";
+```
+
+The first is a Boolean.
+
+The second is a string.
+
+## PHP Determines Data Types
+
+PHP normally determines the data type from the value.
+
+```php
+$name = "Rafat";     // string
+$age = 25;           // integer
+$price = 19.99;      // float
+$isStudent = true;   // boolean
+```
+
+---
+
+# `var_dump()`
+
+`var_dump()` can be used to inspect a value and its data type.
+
+```php
+$name = "Rafat";
+$age = 25;
+$price = 19.99;
+$isStudent = true;
+
+var_dump($name);
+var_dump($age);
+var_dump($price);
+var_dump($isStudent);
+```
+
+The output will look similar to:
+
+```text
+string(5) "Rafat"
+int(25)
+float(19.99)
+bool(true)
+```
+
+For strings, `var_dump()` also shows the number of characters.
+
+## Exercise
+
+What type do you expect here?
+
+```php
+$price = 15.99;
+
+var_dump($price);
+```
+
+<details>
+<summary>Answer</summary>
+
+```text
+float
+```
+
+</details>
+
+---
+
+# Strings and Quotes
 
 PHP supports both double and single quotes.
-
-Double quotes:
-
-```php
-"Hello"
-```
-
-Single quotes:
-
-```php
-'Hello'
-```
-
-Both can create strings, but they behave differently in some situations.
 
 ## Double Quotes
 
 Variables can be interpreted inside double-quoted strings.
-
-Example:
 
 ```php
 $name = "Rafat";
@@ -799,15 +705,11 @@ Output:
 Hello Rafat
 ```
 
-PHP replaces `$name` with its value.
-
 ## Single Quotes
 
-With single quotes:
+Variables are generally treated literally inside single quotes.
 
 ```php
-$name = "Rafat";
-
 echo 'Hello $name';
 ```
 
@@ -817,67 +719,25 @@ Output:
 Hello $name
 ```
 
-PHP generally treats the contents literally.
-
 For now, remember:
 
 ```text
 " " → variables can be interpreted
-
 ' ' → generally treated literally
 ```
-
-## Exercise
-
-Predict the output:
-
-```php
-$food = "Pizza";
-
-echo "My favourite food is $food";
-```
-
-<details>
-<summary>Answer</summary>
-
-```text
-My favourite food is Pizza
-```
-
-</details>
 
 ---
 
 # String Concatenation `.`
 
-Concatenation means joining strings together.
+Concatenation means joining values together as strings.
 
-PHP uses a period:
-
-```text
-.
-```
-
-Example:
+PHP uses a period `.`.
 
 ```php
 $firstName = "Rafat";
 $lastName = "Bin";
 
-echo $firstName . $lastName;
-```
-
-Output:
-
-```text
-RafatBin
-```
-
-There is no space because PHP joins the strings exactly as written.
-
-To add a space:
-
-```php
 echo $firstName . " " . $lastName;
 ```
 
@@ -901,6 +761,25 @@ Output:
 My name is Rafat
 ```
 
+With `echo`, commas can also be used to output multiple values:
+
+```php
+echo "My name is ", $name;
+```
+
+Output:
+
+```text
+My name is Rafat
+```
+
+The difference is:
+
+```text
+.  → joins values together
+,  → gives echo multiple values to output
+```
+
 ## Exercise
 
 Given:
@@ -919,427 +798,140 @@ Pizza costs $15
 <details>
 <summary>Answer</summary>
 
+Using concatenation:
+
 ```php
 echo $food . " costs $" . $price;
 ```
 
-</details>
-
----
-
-# Constants
-
-A variable can change:
+Or with commas:
 
 ```php
-$age = 25;
-$age = 26;
-```
-
-A **constant** represents a value that should remain fixed while the program runs.
-
-One way to create a constant is:
-
-```php
-define("AGE", 42);
-```
-
-You can output it with:
-
-```php
-echo AGE;
-```
-
-Notice the difference:
-
-```text
-Variable:
-$age
-
-Constant:
-AGE
-```
-
-Constants do not use `$`.
-
-## Example
-
-```php
-define("TAX_RATE", 0.05);
-
-$price = 100;
-
-$tax = $price * TAX_RATE;
-
-echo $tax;
-```
-
-Output:
-
-```text
-5
-```
-
-Constant names are commonly written in uppercase:
-
-```php
-define("SITE_NAME", "My Website");
-define("TAX_RATE", 0.05);
-define("MAX_USERS", 100);
-```
-
-Uppercase is a naming convention that makes constants easy to recognize.
-
-## Exercise
-
-What is wrong here?
-
-```php
-define("PRICE", 50);
-
-echo $PRICE;
-```
-
-<details>
-<summary>Answer</summary>
-
-`PRICE` is a constant, so it does not use `$`.
-
-Correct:
-
-```php
-echo PRICE;
+echo $food, " costs $", $price;
 ```
 
 </details>
 
 ---
 
-# Reserved Words
+# Formatting Output
 
-PHP contains words that already have special meaning in the language.
+`echo` does not automatically create visible line breaks.
 
-Examples include:
+```php
+echo "Rafat";
+echo "Hello";
+echo "PHP";
+```
+
+Browser output:
 
 ```text
-if
-else
-function
-class
-return
+RafatHelloPHP
 ```
 
-You will learn many of these later.
+## Using `<br>`
 
-You should not use reserved words where PHP expects you to create your own identifier.
-
-For now, remember:
-
-> Some words already belong to the PHP language and have special purposes.
-
----
-
-# Data Types in PHP
-
-Different kinds of values have different data types.
-
-The main types in this lesson are:
-
-| Data Type | Meaning |
-| --- | --- |
-| String | Text or a collection of characters |
-| Integer | Whole numbers |
-| Float | Decimal numbers |
-| Boolean | `true` or `false` |
-| Array | A collection of multiple values |
-
----
-
-# Strings
-
-Strings represent text.
-
-Example:
+Because PHP can generate HTML, `<br>` can create a visible browser line break.
 
 ```php
-$name = "Rafat";
+echo "Rafat<br>";
+echo "Hello<br>";
+echo "PHP";
 ```
 
-Other examples:
-
-```php
-$city = "Edmonton";
-$course = "PHP Basics";
-$message = "Hello World";
-```
-
----
-
-# Integers
-
-Integers are whole numbers.
-
-Examples:
-
-```php
-$age = 25;
-$students = 30;
-$temperature = -10;
-```
-
-These are all integers because they have no decimal part.
-
----
-
-# Floats
-
-Floats are numbers containing decimals.
-
-Examples:
-
-```php
-$price = 19.99;
-$temperature = 21.5;
-$average = 87.25;
-```
-
----
-
-# Booleans
-
-A Boolean can have only two possible values:
-
-```php
-true
-false
-```
-
-Examples:
-
-```php
-$isStudent = true;
-$isAdmin = false;
-```
-
-Do not confuse:
-
-```php
-$isStudent = true;
-```
-
-with:
-
-```php
-$isStudent = "true";
-```
-
-The first is a Boolean.
-
-The second is a string.
-
----
-
-# Arrays
-
-An array allows one variable to store multiple values.
-
-Example:
-
-```php
-$students = ["Rafat", "Jack", "Sarah"];
-```
-
-The values have indexes:
-
-```text
-0 → Rafat
-1 → Jack
-2 → Sarah
-```
-
-Array indexing starts at:
-
-```text
-0
-```
-
-So:
-
-```php
-echo $students[0];
-```
-
-outputs:
+Browser output:
 
 ```text
 Rafat
+Hello
+PHP
 ```
 
-And:
-
-```php
-echo $students[2];
-```
-
-outputs:
-
-```text
-Sarah
-```
-
-## Exercise
-
-Given:
-
-```php
-$foods = ["Pizza", "Burger", "Pasta"];
-```
-
-What does this output?
-
-```php
-echo $foods[1];
-```
-
-<details>
-<summary>Answer</summary>
-
-```text
-Burger
-```
-
-</details>
-
----
-
-# Associative Arrays
-
-PHP arrays can also use named keys.
-
-Example:
-
-```php
-$student = [
-    "name" => "Rafat",
-    "age" => 25,
-    "program" => "DMIT"
-];
-```
-
-You can access a value using its key:
-
-```php
-echo $student["name"];
-```
-
-Output:
-
-```text
-Rafat
-```
-
-Another example:
-
-```php
-echo $student["program"];
-```
-
-Output:
-
-```text
-DMIT
-```
-
-You may learn arrays in greater detail later.
-
----
-
-# PHP Determines Data Types
-
-For basic variables, PHP usually determines the data type from the value.
-
-Example:
+You can also use it with multiple values:
 
 ```php
 $name = "Rafat";
 $age = 25;
-$price = 19.99;
-$isStudent = true;
+
+echo "Name: ", $name, "<br>";
+echo "Age: ", $age, "<br>";
 ```
 
-PHP understands that:
+## Using `\n`
 
-```text
-"Rafat" → String
-25      → Integer
-19.99   → Float
-true    → Boolean
+PHP also supports the newline character:
+
+```php
+echo "Hello\n";
+echo "World";
 ```
 
-This is related to PHP being a dynamically and weakly typed language.
+`\n` is useful for:
+
+- Terminal output
+- Plain-text output
+- Text files
+
+In normal HTML, `\n` usually does not create a visible browser line break.
+
+## Using HTML Elements
+
+For webpage content, HTML elements are often better than using many `<br>` tags.
+
+```php
+echo "<p>Hello</p>";
+echo "<p>Welcome to PHP</p>";
+```
 
 ---
 
-# `var_dump()`
+# Comments
 
-A useful function for inspecting a value and its type is:
+Comments are notes inside code that PHP ignores when the program runs.
+
+## Single-Line Comments
+
+Use `//`.
 
 ```php
-var_dump();
+// Store the student's name
+$name = "Rafat";
+```
+
+Comments can also appear after a statement:
+
+```php
+$name = "Rafat"; // Student name
+```
+
+## Multi-Line Comments
+
+Use:
+
+```php
+/*
+...
+*/
 ```
 
 Example:
 
 ```php
-$age = 25;
+/*
+Calculate the student's
+final score.
+*/
 
-var_dump($age);
+$score = 85;
 ```
 
-Output will look similar to:
-
-```text
-int(25)
-```
-
-For a string:
-
-```php
-$name = "Rafat";
-
-var_dump($name);
-```
-
-Output will look similar to:
-
-```text
-string(5) "Rafat"
-```
-
-This tells us that the value is a string containing 5 characters.
-
-## Exercise
-
-What type do you expect here?
-
-```php
-$price = 15.99;
-
-var_dump($price);
-```
-
-<details>
-<summary>Answer</summary>
-
-It will be a float.
-
-</details>
 
 ---
 
 # Basic Arithmetic
 
-PHP supports the standard arithmetic operators.
+PHP supports standard arithmetic operators.
 
 | Operation | Operator |
 | --- | --- |
@@ -1350,89 +942,25 @@ PHP supports the standard arithmetic operators.
 | Modulus | `%` |
 | Exponentiation | `**` |
 
----
-
-# Addition
-
-Example:
+## Arithmetic With Variables
 
 ```php
-echo 10 + 5;
+$a = 10;
+$b = 5;
+
+echo $a + $b;  // 15
+echo "<br>";
+
+echo $a - $b;  // 5
+echo "<br>";
+
+echo $a * $b;  // 50
+echo "<br>";
+
+echo $a / $b;  // 2
 ```
 
-Output:
-
-```text
-15
-```
-
-Using variables:
-
-```php
-$num1 = 10;
-$num2 = 5;
-
-$result = $num1 + $num2;
-
-echo $result;
-```
-
-Output:
-
-```text
-15
-```
-
----
-
-# Subtraction
-
-Example:
-
-```php
-echo 10 - 5;
-```
-
-Output:
-
-```text
-5
-```
-
-Using variables:
-
-```php
-$money = 100;
-$cost = 30;
-
-$remaining = $money - $cost;
-
-echo $remaining;
-```
-
-Output:
-
-```text
-70
-```
-
----
-
-# Multiplication
-
-Example:
-
-```php
-echo 10 * 5;
-```
-
-Output:
-
-```text
-50
-```
-
-A more realistic example:
+A result can also be stored in another variable:
 
 ```php
 $price = 20;
@@ -1449,85 +977,13 @@ Output:
 60
 ```
 
----
 
-# Division
-
-Example:
-
-```php
-echo 20 / 4;
-```
-
-Output:
-
-```text
-5
-```
-
-Another example:
-
-```php
-$total = 100;
-$people = 4;
-
-$amountPerPerson = $total / $people;
-
-echo $amountPerPerson;
-```
-
-Output:
-
-```text
-25
-```
-
----
-
-# Arithmetic With Variables
-
-Arithmetic becomes more useful when variables are involved.
-
-Example:
-
-```php
-$num1 = 10;
-$num2 = 5;
-
-$result = $num1 + $num2;
-
-echo $result;
-```
-
-PHP evaluates:
-
-```text
-$result = $num1 + $num2
-
-$result = 10 + 5
-
-$result = 15
-```
-
-This basic pattern appears constantly in programming:
-
-```text
-INPUT VALUES
-     ↓
-CALCULATION
-     ↓
-STORE RESULT
-     ↓
-OUTPUT RESULT
-```
 
 ---
 
 # Modulus `%`
 
 The modulus operator gives the **remainder after division**.
-
-Example:
 
 ```php
 echo 10 % 3;
@@ -1539,62 +995,19 @@ Think:
 10 ÷ 3 = 3 remainder 1
 ```
 
-So the output is:
+Output:
 
 ```text
 1
 ```
 
-Another example:
 
-```php
-echo 20 % 5;
-```
-
-Since:
-
-```text
-20 ÷ 5 = 4 remainder 0
-```
-
-the output is:
-
-```text
-0
-```
-
-## Exercise
-
-Predict the output:
-
-```php
-echo 17 % 5;
-```
-
-<details>
-<summary>Answer</summary>
-
-```text
-2
-```
-
-Because:
-
-```text
-5 × 3 = 15
-
-17 - 15 = 2
-```
-
-</details>
 
 ---
 
 # Exponentiation `**`
 
-The exponentiation operator means "to the power of."
-
-Example:
+Exponentiation means "to the power of."
 
 ```php
 echo 5 ** 2;
@@ -1603,9 +1016,7 @@ echo 5 ** 2;
 This means:
 
 ```text
-5²
-5 × 5
-25
+5 × 5 = 25
 ```
 
 Output:
@@ -1614,24 +1025,7 @@ Output:
 25
 ```
 
-Another example:
 
-```php
-echo 2 ** 3;
-```
-
-This means:
-
-```text
-2 × 2 × 2
-8
-```
-
-Output:
-
-```text
-8
-```
 
 ---
 
@@ -1641,8 +1035,6 @@ PHP follows the normal mathematical order of operations.
 
 You may know this as **BEDMAS** or **PEMDAS**.
 
-General order:
-
 ```text
 1. Parentheses
 2. Exponents
@@ -1650,7 +1042,7 @@ General order:
 4. Addition and Subtraction
 ```
 
-## Example 1
+For example:
 
 ```php
 echo 5 + 2 * 3;
@@ -1659,11 +1051,8 @@ echo 5 + 2 * 3;
 Multiplication happens first:
 
 ```text
-5 + 2 × 3
-    ↓
 5 + 6
-  ↓
-11
+= 11
 ```
 
 Output:
@@ -1672,7 +1061,7 @@ Output:
 11
 ```
 
-## Example 2
+Compare:
 
 ```php
 echo (5 + 2) * 3;
@@ -1681,100 +1070,19 @@ echo (5 + 2) * 3;
 Parentheses happen first:
 
 ```text
-(5 + 2) × 3
-    ↓
 7 × 3
- ↓
-21
+= 21
 ```
 
 Output:
 
 ```text
 21
-```
-
-## Example From the Lesson
-
-```php
-echo 5 * 6 + 3 - 1;
-```
-
-Output:
-
-```text
-32
-```
-
-Because:
-
-```text
-5 × 6 = 30
-
-30 + 3 - 1 = 32
-```
-
-Another:
-
-```php
-echo 5 * (6 + 3) - 1;
-```
-
-Output:
-
-```text
-44
-```
-
-Another:
-
-```php
-echo (5 * 6) + 3 - 1;
-```
-
-Output:
-
-```text
-32
-```
-
-Another:
-
-```php
-echo 5 ** 2 * 6 + 3 - 1;
-```
-
-Output:
-
-```text
-152
-```
-
-Because:
-
-```text
-5² = 25
-
-25 × 6 = 150
-
-150 + 3 - 1 = 152
-```
-
-Another:
-
-```php
-echo 5 ** 2 * (6 + 3) - 1;
-```
-
-Output:
-
-```text
-224
 ```
 
 ## Exercise
 
-Predict the output:
+Predict:
 
 ```php
 echo 10 + 5 * 2;
@@ -1806,11 +1114,197 @@ echo (10 + 5) * 2;
 
 ---
 
-# Writing PHP and HTML Together
+# Constants
 
-PHP is especially useful because it can be mixed with HTML.
+A variable can change:
+
+```php
+$age = 25;
+$age = 26;
+```
+
+A **constant** represents a value that should remain fixed while the program runs.
+
+One way to create a constant is:
+
+```php
+define("TAX_RATE", 0.05);
+```
+
+Constants do not use `$`.
+
+```php
+echo TAX_RATE;
+```
 
 Example:
+
+```php
+define("TAX_RATE", 0.05);
+
+$price = 100;
+$tax = $price * TAX_RATE;
+
+echo $tax;
+```
+
+Output:
+
+```text
+5
+```
+
+Constant names are commonly written in uppercase:
+
+```php
+define("SITE_NAME", "My Website");
+define("TAX_RATE", 0.05);
+define("MAX_USERS", 100);
+```
+
+## Exercise
+
+What is wrong here?
+
+```php
+define("PRICE", 50);
+
+echo $PRICE;
+```
+
+<details>
+<summary>Answer</summary>
+
+Constants do not use `$`.
+
+Correct:
+
+```php
+echo PRICE;
+```
+
+</details>
+
+---
+
+# Reserved Words
+
+PHP contains words that already have special meanings.
+
+Examples include:
+
+```text
+if
+else
+function
+class
+return
+```
+
+You will learn many of these later.
+
+For now, remember:
+
+> Some words already belong to PHP and have special purposes.
+
+---
+
+# Arrays
+
+An array allows one variable to store multiple values.
+
+```php
+$students = ["Rafat", "Jack", "Sarah"];
+```
+
+Each value has an index:
+
+```text
+0 → Rafat
+1 → Jack
+2 → Sarah
+```
+
+Array indexing begins at `0`.
+
+```php
+echo $students[0];
+```
+
+Output:
+
+```text
+Rafat
+```
+
+## Exercise
+
+Given:
+
+```php
+$foods = ["Pizza", "Burger", "Pasta"];
+```
+
+What does this output?
+
+```php
+echo $foods[1];
+```
+
+<details>
+<summary>Answer</summary>
+
+```text
+Burger
+```
+
+</details>
+
+---
+
+# Associative Arrays
+
+Associative arrays use named keys.
+
+```php
+$student = [
+    "name" => "Rafat",
+    "age" => 25,
+    "program" => "DMIT"
+];
+```
+
+Access a value using its key:
+
+```php
+echo $student["name"];
+```
+
+Output:
+
+```text
+Rafat
+```
+
+Another example:
+
+```php
+echo $student["program"];
+```
+
+Output:
+
+```text
+DMIT
+```
+
+Arrays can be explored in more detail later.
+
+---
+
+# Writing PHP and HTML Together
+
+PHP can be mixed with HTML.
 
 ```php
 <?php
@@ -1838,9 +1332,7 @@ $age = 25;
 </html>
 ```
 
-PHP runs on the server.
-
-The browser receives the resulting HTML.
+PHP runs on the server and the browser receives the resulting HTML.
 
 Think:
 
@@ -1862,7 +1354,7 @@ You can move back and forth between PHP and HTML.
 
 # Short Echo Syntax `<?= ?>`
 
-When you want to output a PHP value inside HTML, PHP provides a shorter syntax.
+When outputting a PHP value inside HTML, PHP provides a shorter syntax.
 
 Instead of:
 
@@ -1875,8 +1367,6 @@ you can write:
 ```php
 <?= $name ?>
 ```
-
-These are used for the same basic purpose.
 
 Example:
 
@@ -1894,44 +1384,21 @@ $age = 25;
 <p>Age: <?= $age ?></p>
 ```
 
-Think:
+Think of:
 
-```text
-<?= something ?>
+```php
+<?= $name ?>
 ```
 
 as:
 
-> Output this value here.
-
-## Example
-
-```php
-<?php
-
-$course = "PHP Basics";
-$score = 90;
-
-?>
-
-<h1><?= $course ?></h1>
-
-<p>Score: <?= $score ?></p>
-```
-
-Browser output:
-
-```text
-PHP Basics
-
-Score: 90
-```
+> Output the value of `$name` here.
 
 ---
 
 # `phpinfo()`
 
-PHP includes a useful function:
+PHP includes a function called:
 
 ```php
 phpinfo();
@@ -1945,17 +1412,16 @@ Example:
 phpinfo();
 ```
 
-It displays information about the PHP environment, including things such as:
+It displays information about the PHP environment, including:
 
 - PHP version
 - Server configuration
-- Loaded PHP extensions
-- PHP configuration settings
-- Environment information
+- Loaded extensions
+- PHP settings
 
-This is useful when developing or troubleshooting PHP.
+It is useful for development and troubleshooting.
 
-Because `phpinfo()` can reveal detailed information about the server, it should generally not be left publicly accessible on a production website.
+Because `phpinfo()` can reveal server information, it should not normally be left publicly accessible on a production website.
 
 ---
 
@@ -1966,15 +1432,12 @@ Here is a small example using several concepts from this lesson:
 ```php
 <?php
 
-// Student information
 $name = "Rafat";
 $program = "DMIT";
 
-// Assignment grades
 $assignment1 = 80;
 $assignment2 = 90;
 
-// Calculate the average
 $average = ($assignment1 + $assignment2) / 2;
 
 ?>
@@ -1990,28 +1453,18 @@ $average = ($assignment1 + $assignment2) / 2;
 <p>Average: <?= $average ?></p>
 ```
 
-The average calculation is:
+The calculation is:
 
 ```text
-80 + 90
-   ↓
-170
-   ↓
-170 / 2
-   ↓
-85
+80 + 90 = 170
+
+170 / 2 = 85
 ```
 
-So:
-
-```php
-$average
-```
-
-contains:
+So the output includes:
 
 ```text
-85
+Average: 85
 ```
 
 ---
@@ -2020,7 +1473,7 @@ contains:
 
 Create a PHP page for a student's textbook purchase.
 
-Store the following values:
+Store:
 
 ```text
 Student name
@@ -2030,7 +1483,7 @@ Quantity
 Tax rate
 ```
 
-Then calculate:
+Calculate:
 
 ```text
 subtotal = price × quantity
