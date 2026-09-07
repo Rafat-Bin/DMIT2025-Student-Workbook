@@ -80,11 +80,50 @@ Try to combine these to calculate `c`.
 
 ## Problem 3
 
-Write a script that begins with a four-digit number. Take each place value (i.e. each individual number) and add them together. 
+## Problem 3
 
-For example, if you take the number `1234`, then you will need to figute out a way to extract each number and add them together. The expected output would be `1 + 2 + 3 + 4 = 10`.
+Start with a variable containing a **four-digit number**.
 
-Finish by echoing out the sum. 
+For example:
+
+```php
+$number = 1234;
+```
+
+Your goal is to add each digit together.
+
+For `1234`:
+
+```text
+1 + 2 + 3 + 4 = 10
+```
+
+### Your Task
+
+Write a PHP script that:
+
+1. Stores a four-digit number in a variable.
+2. Gets each digit from the number.
+3. Adds the four digits together.
+4. Echoes the final total.
+
+### Hint
+
+The modulus operator `%` gives you the **remainder after division**.
+
+For example:
+
+```php
+1234 % 10
+```
+
+gives:
+
+```text
+4
+```
+
+This can help you get the last digit of a number.
 
 ---
 
