@@ -1,6 +1,6 @@
-## Using `include()`
+# Using `include()`
 
-In 1. php-basics.md, we learned that PHP and HTML can be written together in the same `.php` file.
+In `01-php-basics.md`, we learned that PHP and HTML can be written together in the same `.php` file.
 
 For example:
 
@@ -11,41 +11,46 @@ $name = "John";
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PHP Basics</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
-<body>
+
+<body class="container">
 
     <h1>Welcome, <?= $name ?>!</h1>
 
-    <p>This is my first PHP page.</p>
+    <p class="lead">This is my first PHP page.</p>
 
 </body>
+
 </html>
 ```
 
-This works well, but imagine that our website has several pages.
+This works, but imagine that our website has several pages.
 
-Each page might need the same:
+Every page would need some of the same code, such as:
 
 - `<html>`
 - `<head>`
+- Bootstrap
 - `<body>`
 - navigation
 - footer
 
-We could copy and paste this HTML into every page, but that would create a lot of repeated code.
-
-PHP gives us a way to reuse code with `include()`.
+Instead of copying and pasting the same code, PHP allows us to reuse code with `include()`.
 
 ---
 
 ## Creating a Header
 
-We can move the HTML at the beginning of our page into a separate file.
+We can move the beginning of our HTML document into a separate file.
 
-Create a file called:
+Create:
 
 ```text
 includes/header.php
@@ -62,40 +67,46 @@ Inside `header.php`:
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title><?= $title ?></title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 
-<body>
+<body class="container">
+
+    <main class="py-5">
 ```
 
-Now we can include this file in another PHP page:
+Now our common HTML and Bootstrap setup can be reused on different pages.
+
+---
+
+## Including the Header
+
+Inside `index.php`, create a `$title` variable and include the header:
 
 ```php
 <?php
 
-$title = "PHP Basics";
+$title = "Home Page";
 
 include('includes/header.php');
 
 ?>
 ```
 
-When PHP reaches `include()`, it inserts the contents of `header.php` into the page.
+When PHP reaches `include()`, it uses the contents of `header.php` at that location.
 
-You can think of it like this:
+Because `$title` was created before the `include()`, our `header.php` can use it here:
 
-```text
-index.php
-    ↓
-include header.php
-    ↓
-display page content
+```php
+<title><?= $title ?></title>
 ```
 
 ---
 
 ## Creating a Footer
 
-We can do the same thing with the HTML at the bottom of every page.
+We can also move the closing HTML into another file.
 
 Create:
 
@@ -106,7 +117,10 @@ includes/footer.php
 Inside `footer.php`:
 
 ```html
+    </main>
+
 </body>
+
 </html>
 ```
 
@@ -120,10 +134,10 @@ Then include it at the bottom of the page:
 
 ## Putting It Together
 
-Our project could now look like this:
+Our project now looks like this:
 
 ```text
-project/
+class-code/
 │
 ├── index.php
 │
@@ -132,45 +146,7 @@ project/
     └── footer.php
 ```
 
-Our `index.php` becomes much smaller:
-
-```php
-<?php
-
-$title = "PHP Basics";
-
-include('includes/header.php');
-
-?>
-
-<h1>Welcome!</h1>
-
-<p>This is the main content of the page.</p>
-
-<?php include('includes/footer.php'); ?>
-```
-
-The browser still receives one complete HTML page.
-
-PHP simply combines the files for us:
-
-```text
-header.php
-    +
-index.php content
-    +
-footer.php
-    ↓
-Complete HTML page
-```
-
----
-
-## Using Variables in Included Files
-
-An included `.php` file can use variables that were created before `include()`.
-
-For example, in `index.php`:
+Our `index.php` can now focus on the content for that page:
 
 ```php
 <?php
@@ -180,21 +156,35 @@ $title = "Home Page";
 include('includes/header.php');
 
 ?>
+
+<h1><?= $title ?></h1>
+
+<p class="lead">Welcome to my website!</p>
+
+<a href="#" class="btn btn-primary">Learn More</a>
+
+<?php include('includes/footer.php'); ?>
 ```
 
-Then `header.php` can use `$title`:
+PHP combines the files together:
 
-```php
-<title><?= $title ?></title>
+```text
+header.php
+    +
+index.php
+    +
+footer.php
+    ↓
+Complete HTML page
 ```
 
-The browser will receive:
+---
 
-```html
-<title>Home Page</title>
-```
+## Using Different Page Titles
 
-We could use a different title on another page:
+Because `$title` is created before `header.php` is included, each page can have its own title.
+
+For example:
 
 ```php
 <?php
@@ -206,33 +196,25 @@ include('includes/header.php');
 ?>
 ```
 
-Now the title becomes:
+The same `header.php` will now output:
 
 ```html
 <title>About Us</title>
 ```
 
-This allows us to reuse the same `header.php` while still changing information on each page.
+Another page could use:
 
----
+```php
+<?php
 
-## `.html` or `.php`?
+$title = "Contact Us";
 
-You can include both HTML and PHP files.
+include('includes/header.php');
 
-If the file contains only HTML, it could be:
-
-```text
-footer.html
+?>
 ```
 
-If the included file needs to use PHP code or PHP variables, use:
-
-```text
-header.php
-```
-
-For this course, we will commonly use `.php` for our included files because it allows us to use PHP when needed.
+We can reuse the same header while changing the title for each page.
 
 ---
 
@@ -242,14 +224,9 @@ For this course, we will commonly use `.php` for our included files because it a
 
 - avoid repeating the same code
 - reuse headers and footers
-- keep our files smaller
+- keep our pages smaller
 - make changes in one place
 
-For example, if 10 pages use the same `header.php`, we only need to change the header once instead of editing all 10 pages.
-
----
-
-
-The important idea to remember is:
+For example, if we need to update our Bootstrap link later, we can change it once inside `header.php` instead of changing every page.
 
 > **`include()` lets us reuse code from another file instead of copying and pasting the same code on every page.**
