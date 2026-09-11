@@ -261,7 +261,7 @@ AND means **both conditions must be true**.
 $age = 20;
 $has_ticket = true;
 
-if ($age >= 18 && $has_ticket === true) {
+if ($age >= 18 && $has_ticket) {
     echo "You may enter.";
 }
 ```
