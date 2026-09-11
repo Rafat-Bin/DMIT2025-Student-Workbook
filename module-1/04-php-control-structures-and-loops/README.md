@@ -118,6 +118,24 @@ We can check if values are different using `!=`.
 
 10 != 10; // false
 ```
+### Equality
+
+We can evaluate equality with `==`. This will check to see whether the values on either side of the operator are equivalents.  
+
+```PHP
+    42 == 42; // This would evaluate as TRUE.
+    2 + 2 == 5; // This would evaluate as FALSE.
+    '1' == 1; // This would evaluate as TRUE.
+```
+
+In our last example, we compared a character to an integer; because PHP is a weak-typed language, they would be considered equal and the statement would evaluate as true.
+
+So, what if we want to avoid that? We can use an identical comparison operator, or `===`, which will also check for data types.
+
+```PHP
+    1 === 1; // This would evaluate as TRUE.
+    '1' === 1; // This would evaluate as FALSE.
+```
 
 
 ---
