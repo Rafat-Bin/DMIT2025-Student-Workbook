@@ -1,85 +1,907 @@
-# Form Handling (via the POST Method)
+# PHP Form Handling — POST Method
 
-Processing forms is extremely common. They allow us to capture some sort of data with the user and _do something_ with it. For many websites and web applications, forms (and, as we'll cover later, databases) are the backbone for dynamic functionality. 
-
-Each form has two important attributes, which we'll cover much more in depth: `action` and `method`.
+This lesson covers the basics of creating an HTML form, sending data using POST, and processing that data with PHP.
 
 ---
 
-## Form Actions
+# Part 1 — What is a Form?
 
-The `action` attribute specifies what will handle or process the data once the form is submitted. It can be a separate file (ex. `process.php`), or the 
+A form is used to **collect information from the user**.
 
-If we want the page with the form on it to handle everything, we can use the following value:  
+For example:
 
-```PHP
-    <form action="<?php echo $_SERVER['PHP_SELF']; ?>">
-``` 
+- Name
+- Email
+- Password
+- Message
 
-Keep in mind that if we `include()` a separate script that will handle our data, PHP will act as if it's on the same page.
+## Example
 
+```html
+<!DOCTYPE html>
+<html>
+<body>
 
-### $_SERVER
+<form>
 
-So, what is `$_SERVER`? It's something called a _superglobal variable_, which is a predefined array that any part of our script can access (i.e. it has a global scope). 
+    <label>Name:</label>
+    <input type="text">
 
-Specifically, `$_SERVER` provides information about the server and the current request. This can include server and execution environment details, such as URL paths, request method, IP address, and more.
+    <button type="submit">Submit</button>
 
+</form>
 
-## Form Methods
-
-The `method` value of a form specifies the way (i.e. the HTTP method) that the data will be sent. It can take two possible values: "GET" and "POST".
-
-It's important to choose the appropriate method based on the intended functionality and security requirements of your form. 
-
-
-### GET
-
-`GET` is the default method if no method attribute is specified. It is commonly used for retrieving data from the server or performing searches. 
-
-`GET` transmits data from one page to another by sending it as part of the URL, called the `query string`. This means that a specific state can be bookmarked, shared, or saved just by saving the URL; however, this also means that the user can directly manipulate things by changing the URL.
-
-Because all of the submitted data is visible in the URL, never use the `GET` method if the form handles any sensitive or personally identifying information, such as email addresses, date of birth, passwords, credit card information, and so forth.
-
-Finally, when are using the GET method, we are limited to a maximum of 2,048 characters, minus the number of characters in the actual path. 
-
-
-### POST
-
-When the form is submitted using the `POST` method, the form data is not directly visible in the URL. Instead, it is sent in the body of the HTTP request.
-
-This method is commonly used for sending sensitive or large amounts of data to the server, such as submitting forms with passwords or uploading files. However, the data is not bookmarkable or shareable directly through the URL.
-
-
-### $_GET and $_POST
-
-Whenever a form is submitted, the data is assigned to either the $_GET or $_POST superglobal variable. It is an associative array, where each key is the `name` of an input and each value is whatever the user submitted. 
-
-We access these values in the same way that we would access any array's stored values.
-
-If we want to access data sent via `GET`, we could access it this way:
-
-```PHP
-    $username = $_GET['username'];
-    echo "Welcome, $username!";
+</body>
+</html>
 ```
 
-Accessing data sent by `POST` works in the same way:
 
-```PHP
-    $username = $_POST['username'];
+
+---
+
+# Part 2 — `action`
+
+The `action` decides **WHERE the form goes** when the user clicks Submit.
+
+We can use two PHP files:
+
+```text
+index.php
+process.php
 ```
 
-However, it's a good idea to put these assignments behind an `if` statement. If we do not check to see whether or not the superglobal variable _has_ any values in it yet -- that is, if we don't check to see if the form has been submitted -- we will be inviting a whole host of errors to our application. 
+## `index.php`
 
-We can do this by checking to see if the value for the submit button has been set (i.e. if the user has clicked it), or checking to see if any data was sent using `POST`: 
+```html
+<!DOCTYPE html>
+<html>
+<body>
 
-```PHP
-    // Is there a value for something with a name of 'submit'?
-    if (isset($_GET['submit'])) { ... }
+<form action="process.php">
 
-    // Did we get here using the POST method?
-    if ($_SERVER['REQUEST_METHOD'] == 'POST') { ... }
+    <button type="submit">Go</button>
+
+</form>
+
+</body>
+</html>
+```
+
+## `process.php`
+
+```html
+<!DOCTYPE html>
+<html>
+<body>
+
+<h1>You reached process.php!</h1>
+
+</body>
+</html>
+```
+
+
+
+The flow is:
+
+```text
+index.php
+    ↓
+User clicks Submit
+    ↓
+action="process.php"
+    ↓
+process.php
+```
+
+## Remember
+
+**`action` = WHERE the form goes.**
+
+---
+
+# Part 3 — `method="POST"`
+
+The `method` decides **HOW the form data is sent**.
+
+There are two main methods:
+
+```text
+GET
+POST
+```
+
+For now, we are learning **POST**.
+
+## Example — `index.php`
+
+```html
+<!DOCTYPE html>
+<html>
+<body>
+
+<form action="process.php" method="POST">
+
+    <label>Name:</label>
+    <input type="text">
+
+    <button type="submit">Submit</button>
+
+</form>
+
+</body>
+</html>
+```
+
+The important new part is:
+
+```html
+method="POST"
+```
+
+When the form is submitted:
+
+```text
+index.php
+    ↓
+Data sent using POST
+    ↓
+process.php
+```
+
+POST sends the form data in the **request body**, so the submitted data is not directly displayed in the URL.
+
+## Remember
+
+```text
+action = WHERE the form goes
+
+method = HOW the data is sent
+```
+
+---
+
+# Part 4 — Input `name`
+
+PHP needs a way to identify each input.
+
+We do this using the `name` attribute.
+
+## Example — `index.php`
+
+```html
+<!DOCTYPE html>
+<html>
+<body>
+
+<form action="process.php" method="POST">
+
+    <label>Name:</label>
+
+    <input type="text" name="username">
+
+    <button type="submit">Submit</button>
+
+</form>
+
+</body>
+</html>
+```
+
+Suppose the user types:
+
+```text
+John
+```
+
+You can think of the submitted information as:
+
+```text
+username → John
+```
+
+
+
+
+## Remember
+
+**`name` gives the input a key PHP can use to identify its submitted value.**
+
+---
+
+# Part 5 — `$_POST`
+
+When a form uses POST, PHP gives us the submitted data through:
+
+```php
+$_POST
+```
+
+`$_POST` is a special PHP associative array.
+
+Let's use two files.
+
+## `index.php`
+
+```html
+<!DOCTYPE html>
+<html>
+<body>
+
+<form action="process.php" method="POST">
+
+    <label>Name:</label>
+
+    <input type="text" name="username">
+
+    <button type="submit">Submit</button>
+
+</form>
+
+</body>
+</html>
+```
+
+## `process.php`
+
+```php
+<?php
+
+$username = $_POST["username"];
+
+echo "Hello $username";
+
+?>
+```
+
+## Try It
+
+Enter:
+
+```text
+John
+```
+
+Click Submit.
+
+You should see:
+
+```text
+Hello John
+```
+
+## How Does It Work?
+
+
+```text
+name="username"
+       ↓
+User enters John
+       ↓
+$_POST["username"]
+       ↓
+John
+```
+
+Then:
+
+```php
+$username = $_POST["username"];
+```
+
+stores `John` inside our `$username` variable.
+
+## Remember
+
+**`$_POST` contains data submitted using POST.**
+
+---
+
+# Part 6 — Checking if POST Happened
+
+Before processing the form, we can check whether the page actually received a POST request.
+
+We use:
+
+```php
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+
+}
+```
+
+## Complete Example
+
+### `index.php`
+
+```html
+<!DOCTYPE html>
+<html>
+<body>
+
+<form action="process.php" method="POST">
+
+    <label>Name:</label>
+
+    <input type="text" name="username">
+
+    <button type="submit">Submit</button>
+
+</form>
+
+</body>
+</html>
+```
+
+### `process.php`
+
+```php
+<?php
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+
+    $username = $_POST["username"];
+
+    echo "Hello $username";
+}
+
+?>
+```
+
+Enter:
+
+```text
+John
+```
+
+and submit.
+
+Output:
+
+```text
+Hello John
+```
+
+## What Is the `if` Checking?
+
+It asks:
+
+```text
+Was this page requested using POST?
+            ↓
+           YES
+            ↓
+Process the form data
+```
+
+If someone opens `process.php` without submitting the form:
+
+```text
+Open process.php directly
+          ↓
+Was it POST?
+          ↓
+         NO
+          ↓
+Don't process the form data
+```
+
+This check **does NOT check whether the user typed something**.
+
+It only checks whether a POST request happened.
+
+## Remember
+
+**`REQUEST_METHOD == "POST"` checks whether the page received a POST request.**
+
+---
+
+# Part 7 — `$_SERVER`
+
+`$_SERVER` is another special associative array PHP automatically provides.
+
+It contains information about the **server and current request**.
+
+For this lesson, an important part is:
+
+```php
+$_SERVER["REQUEST_METHOD"]
+```
+
+## Example
+
+Create `index.php`:
+
+```php
+<?php
+
+echo $_SERVER["REQUEST_METHOD"];
+
+?>
+```
+
+Normally opening the page should display:
+
+```text
+GET
+```
+
+Now change it to:
+
+```php
+<?php
+
+echo $_SERVER["REQUEST_METHOD"];
+
+?>
+
+<form method="POST">
+
+    <button type="submit">Submit</button>
+
+</form>
+```
+
+When you first open the page:
+
+```text
+GET
+
+[Submit]
+```
+
+Click Submit.
+
+Now you should see:
+
+```text
+POST
+
+[Submit]
+```
+
+That means:
+
+```text
+$_SERVER["REQUEST_METHOD"]
+            ↓
+How was this page requested?
+```
+
+
+## Superglobal
+
+`$_SERVER` and `$_POST` are called **superglobals**.
+
+
+
+## Remember
+
+**`$_SERVER` contains information about the server/current request.**
+
+---
+
+# Part 8 — Same Page vs Separate Processing Page
+
+There are two ways we can process a form.
+
+---
+
+## Option 1 — Separate PHP Files
+
+We can have:
+
+```text
+index.php
+process.php
+```
+
+`index.php` shows the form.
+
+`process.php` processes the form.
+
+The flow is:
+
+```text
+index.php
+    ↓
+Show form
+    ↓
+User submits
+    ↓
+process.php
+    ↓
+Process submitted data
+```
+
+So:
+
+```text
+index.php
+    ↓
+Collect data
+
+
+process.php
+    ↓
+Process data
+```
+
+---
+
+## Option 2 — Same PHP File
+
+One PHP file can **show the form AND process the form**.
+
+## Complete Example — `index.php`
+
+```php
+<?php
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+
+    $username = $_POST["username"];
+
+    echo "Hello $username";
+}
+
+?>
+
+<!DOCTYPE html>
+<html>
+<body>
+
+<form action="index.php" method="POST">
+
+    <label>Name:</label>
+
+    <input type="text" name="username">
+
+    <button type="submit">Submit</button>
+
+</form>
+
+</body>
+</html>
+```
+
+When you first open `index.php`:
+
+```text
+Name: [___________] [Submit]
+```
+
+Enter:
+
+```text
+John
+```
+
+and submit.
+
+You should see:
+
+```text
+Hello John
+
+Name: [___________] [Submit]
+```
+
+The flow is:
+
+```text
+index.php
+    ↓
+Shows form
+    ↓
+User enters John
+    ↓
+Submit
+    ↓
+POST back to index.php
+    ↓
+Check REQUEST_METHOD
+    ↓
+Get username
+    ↓
+Print Hello John
+```
+
+## Remember
+
+```text
+Two files
+    ↓
+Form page + processing page
+
+
+One file
+    ↓
+Form + processing together
+```
+
+---
+
+# Part 9 — `PHP_SELF`
+
+When processing everything on the same page, we can tell the form:
+
+> Submit back to the current PHP page.
+
+PHP gives us:
+
+```php
+$_SERVER["PHP_SELF"]
+```
+
+`PHP_SELF` refers to the current PHP page.
+
+## Complete Example — `index.php`
+
+```php
+<?php
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+
+    $username = $_POST["username"];
+
+    echo "Hello $username";
+}
+
+?>
+
+<!DOCTYPE html>
+<html>
+<body>
+
+<form action="<?php echo $_SERVER['PHP_SELF']; ?>" method="POST">
+
+    <label>Name:</label>
+
+    <input type="text" name="username">
+
+    <button type="submit">Submit</button>
+
+</form>
+
+</body>
+</html>
+```
+
+If the current page is:
+
+```text
+index.php
+```
+
+then `PHP_SELF` refers to that current page.
+
+
+
+---
+
+# Part 10 — `isset()`
+
+`isset()` checks whether something **exists**.
+
+For example:
+
+```php
+isset($_POST["username"])
+```
+
+asks:
+
+> Does `username` exist in the POST data?
+
+We can also give our submit button a `name` and check whether it exists.
+
+# Part 11 — Retaining Form Values
+
+After submitting a form, the form values normally disappear.
+
+We can keep the user's values after submitting.
+
+This is called a **sticky form**.
+
+---
+
+## Text Input
+
+First, store the submitted value:
+
+```php
+$username = isset($_POST["username"])
+    ? $_POST["username"]
+    : "";
+```
+
+This means:
+
+```text
+If username exists → use its value
+Otherwise          → use ""
+```
+
+Then put the value back into the input:
+
+```php
+<input
+    type="text"
+    name="username"
+    value="<?= $username ?>"
+>
+```
+
+If the user enters:
+
+```text
+John
+```
+
+After submitting:
+
+```text
+Name: [John]
+```
+
+The value stays in the input.
+
+---
+
+## Complete Text Input Example
+
+```php
+<?php
+
+$username = isset($_POST["username"])
+    ? $_POST["username"]
+    : "";
+
+if (isset($_POST["submit"])) {
+    echo "Hello $username";
+}
+
+?>
+
+<!DOCTYPE html>
+<html>
+<body>
+
+<form method="POST">
+
+    <label>Name:</label>
+
+    <input
+        type="text"
+        name="username"
+        value="<?= $username ?>"
+    >
+
+    <button type="submit" name="submit">
+        Submit
+    </button>
+
+</form>
+
+</body>
+</html>
+```
+
+After entering `John` and clicking Submit:
+
+```text
+Hello John
+
+Name: [John] [Submit]
+```
+
+---
+
+## Select
+
+For a `<select>`, use `selected` to keep an option selected.
+
+```php
+$weather = isset($_POST["weather"])
+    ? $_POST["weather"]
+    : "";
+```
+
+Then:
+
+```php
+<select name="weather">
+
+    <option
+        value="sunny"
+        <?php if ($weather == "sunny") echo "selected"; ?>
+    >
+        Sunny
+    </option>
+
+    <option
+        value="rainy"
+        <?php if ($weather == "rainy") echo "selected"; ?>
+    >
+        Rainy
+    </option>
+
+</select>
+```
+
+---
+
+## Radio Buttons
+
+Radio buttons use `checked`.
+
+```php
+$role = isset($_POST["role"])
+    ? $_POST["role"]
+    : "";
+```
+
+Then:
+
+```php
+<input
+    type="radio"
+    name="role"
+    value="hero"
+    <?php if ($role == "hero") echo "checked"; ?>
+>
+Hero
+
+<input
+    type="radio"
+    name="role"
+    value="villain"
+    <?php if ($role == "villain") echo "checked"; ?>
+>
+Villain
+```
+
+---
+
+## Checkboxes
+
+Checkboxes also use `checked`.
+
+```php
+$items = isset($_POST["items"])
+    ? $_POST["items"]
+    : [];
+```
+
+Then:
+
+```php
+<input
+    type="checkbox"
+    name="items[]"
+    value="map"
+    <?php if (in_array("map", $items)) echo "checked"; ?>
+>
+Map
+
+<input
+    type="checkbox"
+    name="items[]"
+    value="sword"
+    <?php if (in_array("sword", $items)) echo "checked"; ?>
+>
+Sword
+```
+
+---
+
+## Remember
+
+```text
+Text Input → value
+Select     → selected
+Radio      → checked
+Checkbox   → checked
 ```
 
 ---
