@@ -697,17 +697,54 @@ We can also give our submit button a `name` and check whether it exists.
 
 # Part 11 — Retaining Form Values
 
-After submitting a form, the form values normally disappear.
+When a user submits a form, we may need to show the form again.
 
-We can keep the user's values after submitting.
+Instead of making the user enter everything again, we can **keep their previous values in the form**.
 
 This is called a **sticky form**.
+
+For example:
+
+```text
+Before Submit
+
+Name:    [John]
+Weather: [Sunny ▼]
+Role:    (●) Hero  ( ) Villain
+```
+
+After submitting, we want the form to still show:
+
+```text
+After Submit
+
+Name:    [John]
+Weather: [Sunny ▼]
+Role:    (●) Hero  ( ) Villain
+```
+
+To do this, we:
+
+```text
+1. Get the submitted value from $_POST
+2. Store it in a variable
+3. Put that value back into the form
+```
+
+Different form controls keep their values differently:
+
+```text
+Text Input → value
+Select     → selected
+Radio      → checked
+Checkbox   → checked
+```
 
 ---
 
 ## Text Input
 
-First, store the submitted value:
+First, get the submitted value:
 
 ```php
 $username = isset($_POST["username"])
@@ -715,14 +752,7 @@ $username = isset($_POST["username"])
     : "";
 ```
 
-This means:
-
-```text
-If username exists → use its value
-Otherwise          → use ""
-```
-
-Then put the value back into the input:
+Then put it back into the input using `value`:
 
 ```php
 <input
@@ -732,74 +762,32 @@ Then put the value back into the input:
 >
 ```
 
-If the user enters:
+If the user entered:
 
 ```text
 John
 ```
 
-After submitting:
+the input will still contain:
 
 ```text
 Name: [John]
-```
-
-The value stays in the input.
-
----
-
-## Complete Text Input Example
-
-```php
-<?php
-
-$username = isset($_POST["username"])
-    ? $_POST["username"]
-    : "";
-
-if (isset($_POST["submit"])) {
-    echo "Hello $username";
-}
-
-?>
-
-<!DOCTYPE html>
-<html>
-<body>
-
-<form method="POST">
-
-    <label>Name:</label>
-
-    <input
-        type="text"
-        name="username"
-        value="<?= $username ?>"
-    >
-
-    <button type="submit" name="submit">
-        Submit
-    </button>
-
-</form>
-
-</body>
-</html>
-```
-
-After entering `John` and clicking Submit:
-
-```text
-Hello John
-
-Name: [John] [Submit]
 ```
 
 ---
 
 ## Select
 
-For a `<select>`, use `selected` to keep an option selected.
+A `<select>` contains different `<option>` elements.
+
+```html
+<select name="weather">
+    <option value="sunny">Sunny</option>
+    <option value="rainy">Rainy</option>
+</select>
+```
+
+First, get the submitted value:
 
 ```php
 $weather = isset($_POST["weather"])
@@ -807,7 +795,13 @@ $weather = isset($_POST["weather"])
     : "";
 ```
 
-Then:
+If the user selected Sunny:
+
+```text
+$weather = "sunny"
+```
+
+To keep that option selected, use `selected`:
 
 ```php
 <select name="weather">
@@ -829,11 +823,28 @@ Then:
 </select>
 ```
 
+The idea is:
+
+```text
+$weather == "sunny"
+        ↓
+       YES
+        ↓
+add selected
+```
+
 ---
 
 ## Radio Buttons
 
-Radio buttons use `checked`.
+Radio buttons allow the user to choose **one option from a group**.
+
+```html
+<input type="radio" name="role" value="hero"> Hero
+<input type="radio" name="role" value="villain"> Villain
+```
+
+First, get the submitted value:
 
 ```php
 $role = isset($_POST["role"])
@@ -841,7 +852,13 @@ $role = isset($_POST["role"])
     : "";
 ```
 
-Then:
+If the user selected Hero:
+
+```text
+$role = "hero"
+```
+
+Radio buttons use `checked`:
 
 ```php
 <input
@@ -865,7 +882,22 @@ Villain
 
 ## Checkboxes
 
-Checkboxes also use `checked`.
+Checkboxes allow the user to select **multiple options**.
+
+We use `[]` because multiple values can be submitted:
+
+```html
+<input type="checkbox" name="items[]" value="map"> Map
+<input type="checkbox" name="items[]" value="sword"> Sword
+```
+
+If both are selected:
+
+```php
+$_POST["items"] = ["map", "sword"];
+```
+
+Get the submitted values:
 
 ```php
 $items = isset($_POST["items"])
@@ -873,7 +905,7 @@ $items = isset($_POST["items"])
     : [];
 ```
 
-Then:
+Then use `in_array()` to check each value:
 
 ```php
 <input
@@ -904,9 +936,194 @@ Radio      → checked
 Checkbox   → checked
 ```
 
+The overall pattern is:
+
+```text
+Get value from $_POST
+        ↓
+Store it in a variable
+        ↓
+Put the value/selection back into the form
+```
+
 ---
 
+# Complete Example
 
+Now let's put everything together in one form.
+
+Create:
+
+```text
+index.php
+```
+
+```php
+<?php
+
+$username = isset($_POST["username"])
+    ? $_POST["username"]
+    : "";
+
+$weather = isset($_POST["weather"])
+    ? $_POST["weather"]
+    : "";
+
+$role = isset($_POST["role"])
+    ? $_POST["role"]
+    : "";
+
+$items = isset($_POST["items"])
+    ? $_POST["items"]
+    : [];
+
+?>
+
+<!DOCTYPE html>
+<html>
+<body>
+
+<h1>Character Form</h1>
+
+<form method="POST">
+
+    <!-- Text Input -->
+
+    <label>Name:</label>
+
+    <input
+        type="text"
+        name="username"
+        value="<?= $username ?>"
+    >
+
+    <br><br>
+
+
+    <!-- Select -->
+
+    <label>Weather:</label>
+
+    <select name="weather">
+
+        <option value="">
+            Choose Weather
+        </option>
+
+        <option
+            value="sunny"
+            <?php if ($weather == "sunny") echo "selected"; ?>
+        >
+            Sunny
+        </option>
+
+        <option
+            value="rainy"
+            <?php if ($weather == "rainy") echo "selected"; ?>
+        >
+            Rainy
+        </option>
+
+    </select>
+
+    <br><br>
+
+
+    <!-- Radio Buttons -->
+
+    <p>Role:</p>
+
+    <input
+        type="radio"
+        name="role"
+        value="hero"
+        <?php if ($role == "hero") echo "checked"; ?>
+    >
+    Hero
+
+    <input
+        type="radio"
+        name="role"
+        value="villain"
+        <?php if ($role == "villain") echo "checked"; ?>
+    >
+    Villain
+
+    <br><br>
+
+
+    <!-- Checkboxes -->
+
+    <p>Items:</p>
+
+    <input
+        type="checkbox"
+        name="items[]"
+        value="map"
+        <?php if (in_array("map", $items)) echo "checked"; ?>
+    >
+    Map
+
+    <input
+        type="checkbox"
+        name="items[]"
+        value="sword"
+        <?php if (in_array("sword", $items)) echo "checked"; ?>
+    >
+    Sword
+
+    <br><br>
+
+    <button type="submit">
+        Submit
+    </button>
+
+</form>
+
+</body>
+</html>
+```
+
+## Try It
+
+Enter:
+
+```text
+Name: John
+Weather: Sunny
+Role: Hero
+Items: Map and Sword
+```
+
+Click **Submit**.
+
+The page reloads, but the form keeps the user's choices:
+
+```text
+Name:    [John]
+
+Weather: [Sunny ▼]
+
+Role:
+(●) Hero
+( ) Villain
+
+Items:
+☑ Map
+☑ Sword
+
+[Submit]
+```
+
+This works because:
+
+```text
+John          → value
+Sunny         → selected
+Hero          → checked
+Map + Sword   → checked
+```
+---
 ## Today's Problems
 
 Just like our last round of exercises, these will be algorithmic (i.e. they will follow a series of logical steps); however, instead of 'hard-coding' our values, we will write these problems to take form data from the user and do something with it. 
