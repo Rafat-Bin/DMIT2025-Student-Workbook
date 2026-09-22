@@ -107,7 +107,7 @@ Create `process_username.php`:
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
-    $username = htmlspecialchars($_POST["username"]);
+    $username = $_POST["username"];
 
     echo "Username: {$username}";
 }
@@ -122,7 +122,7 @@ Create `process_message.php`:
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
-    $message = htmlspecialchars($_POST["message"]);
+    $message = $_POST["message"];
 
     echo "Message: {$message}";
 }
