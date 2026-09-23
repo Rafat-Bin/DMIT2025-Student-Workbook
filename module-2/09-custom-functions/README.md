@@ -1,81 +1,587 @@
-# Functions
+# Lesson 09 — Custom Functions
 
-Functions are reusable snippets of code that can be called (used) multiple times. If we find that we have to do the same thing at different points throughout our program, then it makes sense to define it once rather than rewriting it over and over again. 
+So far, we have used built-in PHP functions such as `isset()`, `date()`.
 
-Functions can:
+PHP also allows us to create our own functions.
 
-1. return a variable or a value (which can be assigned to a variable)
+A **function** is a reusable block of code that performs a task.
 
-2. print something out
+Instead of writing the same code multiple times, we can define it once and call the function whenever we need it.
 
-But wait – does that mean a function can only do one thing or return one value? 
+By the end of this lesson, you will be able to:
 
-Well, yes; however, we can sneakily return multiple values by stuffing them into an array. 
+- Create and call a function
+- Pass values into a function
+- Return values from a function
+- Use returned values in your program
+- Give parameters default values
+- Define accepted parameter types
+- Recognize anonymous functions
 
-## Function Syntax
+---
 
-In PHP, would functions are defined with the keyword *function*, a name, what parameters it accepts, and then something that happens inside.
+## 1. Creating and Calling a Function
 
-```PHP
-		function hello_world() {
-			return 'Hello, world!';
-		}
+A function is created using the `function` keyword.
 
-		echo '<p>' . hello_world() . '</p>';
+The basic syntax is:
+
+```php
+function function_name() {
+
+    // Code to run
+}
 ```
 
+For example:
 
-## Passing Arguments
+```php
+function greet() {
 
-When we define our functions, we can make them more dynamic by defining its parameters. This means that we can pass arguments (or values) into the function, which it will then be able to use.
-
-```PHP
-		function is_bigger($a, $b) {
-			return $a >= $b;
-		}
-
-		$bigger = is_bigger(10, 5);
-		
-		if ($bigger) {
-			echo "This number is bigger than or equal to the second number.";
-		} else {
-			echo "This number is not bigger than the second number.";
-		}
+    return "Hello!";
+}
 ```
 
+Creating the function does not automatically run it.
 
-## Union Typing
+To run the function, we **call** it using its name:
 
-We can explicitly define which data types we will accept in a function. With the pipe character (|), we can list as many types as we'd like.
-
-Union typing allows you to make your functions more explicit when defining variables, allows you to enforce typing, and catches typing errors earlier in the coding process.
-
-Note: The boolean values 'true' and 'false' are pseudo-types. If you pass one of these into a function that accepts a number, it will convert them into the appropriate type (i.e. 1 or 0).
-
-```PHP
-		function double(int|float|null $a) {
-			return $a * 2*;
-		}
-
-		echo double(true);
+```php
+greet();
 ```
 
+Because `greet()` returns a value, we can display it:
 
-## Default Values (Optional or Named Arguments)
-
-We can assign fallback or default values to our parameters. This means that when we're passing arguments into our functions, we do not have to explicitly define every one of them.
-
-In the example below, `$b` has a default value of `2`. If we only pass in one value, it will go to `$a`.
-
-```PHP
-		function times($a, $b = 2) {
-			return $a * $b;
-		}
-
-		echo times(2);
+```php
+echo greet();
 ```
 
+The result is:
 
-## Anonymous Functions (AKA Closures, Callback Functions)
+```text
+Hello!
+```
 
-Another way to write functions is anonymously. This means that they don't get a name and are often created at runtime to perform a specific task. This is _slightly_ more efficient than defining a function (if you are only going to use it once).
+### Complete Example — `index.php`
+
+```php
+<?php
+
+function greet() {
+
+    return "Hello!";
+}
+
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Creating a Function</title>
+</head>
+
+<body>
+
+    <h1>Creating a Function</h1>
+
+    <p>
+        <?php echo greet(); ?>
+    </p>
+
+</body>
+
+</html>
+```
+
+### Key Idea
+
+**A function is defined once and runs when we call it.**
+
+---
+
+## 2. Parameters and Arguments
+
+Functions can receive values.
+
+A **parameter** is a variable listed when the function is created.
+
+For example:
+
+```php
+function greet($name) {
+
+    return "Hello " . $name;
+}
+```
+
+Here:
+
+```php
+$name
+```
+
+is a parameter.
+
+When we call the function:
+
+```php
+echo greet("Sam");
+```
+
+`"Sam"` is the **argument** being passed into the function.
+
+```text
+"Sam"  →  $name
+```
+
+A function can also have more than one parameter:
+
+```php
+function add($a, $b) {
+
+    return $a + $b;
+}
+
+echo add(5, 3);
+```
+
+Here:
+
+```text
+5  →  $a
+3  →  $b
+```
+
+The result is:
+
+```text
+8
+```
+
+### Complete Example — `index.php`
+
+```php
+<?php
+
+function greet($name) {
+
+    return "Hello " . $name;
+}
+
+function add($a, $b) {
+
+    return $a + $b;
+}
+
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parameters and Arguments</title>
+</head>
+
+<body>
+
+    <h1>Parameters and Arguments</h1>
+
+    <p>
+        <?php echo greet("Sam"); ?>
+    </p>
+
+    <p>
+        <?php echo add(5, 3); ?>
+    </p>
+
+</body>
+
+</html>
+```
+
+### Key Idea
+
+**Parameters receive the arguments that are passed into a function.**
+
+---
+
+## 3. Returning and Using Values
+
+The `return` keyword sends a value back to the code that called the function.
+
+For example:
+
+```php
+function add($a, $b) {
+
+    return $a + $b;
+}
+```
+
+We can store the returned value in a variable:
+
+```php
+$total = add(5, 3);
+
+echo $total;
+```
+
+The flow is:
+
+```text
+5 and 3
+   ↓
+add(5, 3)
+   ↓
+return 8
+   ↓
+$total
+```
+
+A function can also return `TRUE` or `FALSE`:
+
+```php
+function is_adult($age) {
+
+    if ($age >= 18) {
+
+        return TRUE;
+
+    } else {
+
+        return FALSE;
+    }
+}
+```
+
+We can store the returned value:
+
+```php
+$adult = is_adult(20);
+```
+
+Then use it in the program:
+
+```php
+if ($adult == TRUE) {
+
+    echo "Adult";
+
+} else {
+
+    echo "Not an adult";
+}
+```
+
+### Complete Example — `index.php`
+
+```php
+<?php
+
+function is_adult($age) {
+
+    if ($age >= 18) {
+
+        return TRUE;
+
+    } else {
+
+        return FALSE;
+    }
+}
+
+$adult = is_adult(20);
+
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Returning Values</title>
+</head>
+
+<body>
+
+    <h1>Returning Values</h1>
+
+    <?php
+
+    if ($adult == TRUE) {
+
+        echo "<p>Adult</p>";
+
+    } else {
+
+        echo "<p>Not an adult</p>";
+    }
+
+    ?>
+
+</body>
+
+</html>
+```
+
+### Key Idea
+
+**A function can return a value that the rest of the program can store and use.**
+
+---
+
+## 4. Default Parameter Values
+
+A parameter can have a **default value**.
+
+For example:
+
+```php
+function times($a, $b = 2) {
+
+    return $a * $b;
+}
+```
+
+Here:
+
+```php
+$b = 2
+```
+
+gives `$b` a default value of `2`.
+
+If we call:
+
+```php
+echo times(5);
+```
+
+PHP uses:
+
+```text
+$a = 5
+$b = 2
+```
+
+The result is:
+
+```text
+10
+```
+
+We can also provide a different value:
+
+```php
+echo times(5, 3);
+```
+
+Now PHP uses:
+
+```text
+$a = 5
+$b = 3
+```
+
+The result is:
+
+```text
+15
+```
+
+### Complete Example — `index.php`
+
+```php
+<?php
+
+function times($a, $b = 2) {
+
+    return $a * $b;
+}
+
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Default Parameter Values</title>
+</head>
+
+<body>
+
+    <h1>Default Parameter Values</h1>
+
+    <p>
+        <?php echo times(5); ?>
+    </p>
+
+    <p>
+        <?php echo times(5, 3); ?>
+    </p>
+
+</body>
+
+</html>
+```
+
+### Key Idea
+
+**A default value is used when an argument is not provided for that parameter.**
+
+---
+
+## 5. Union Typing
+
+PHP can specify which types of values a parameter accepts.
+
+For example:
+
+```php
+function double(int|float|null $number) {
+
+    return $number * 2;
+}
+```
+
+The parameter:
+
+```php
+int|float|null $number
+```
+
+allows `$number` to receive an:
+
+```text
+int
+float
+null
+```
+
+The `|` separates the accepted types.
+
+For example:
+
+```php
+echo double(5);
+echo double(2.5);
+```
+
+### Complete Example — `index.php`
+
+```php
+<?php
+
+function double(int|float|null $number) {
+
+    return $number * 2;
+}
+
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Union Typing</title>
+</head>
+
+<body>
+
+    <h1>Union Typing</h1>
+
+    <p>
+        <?php echo double(5); ?>
+    </p>
+
+    <p>
+        <?php echo double(2.5); ?>
+    </p>
+
+</body>
+
+</html>
+```
+
+### Key Idea
+
+**Union typing allows a parameter to accept more than one specified type.**
+
+---
+
+## 6. Anonymous Functions
+
+A function does not always need to have a name.
+
+A function without a name is called an **anonymous function**.
+
+For example:
+
+```php
+$greeting = function () {
+
+    return "Hello!";
+};
+```
+
+The function itself does not have a name. It is stored in the `$greeting` variable.
+
+We can run it using:
+
+```php
+echo $greeting();
+```
+
+The result is:
+
+```text
+Hello!
+```
+
+### Complete Example — `index.php`
+
+```php
+<?php
+
+$greeting = function () {
+
+    return "Hello!";
+};
+
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anonymous Functions</title>
+</head>
+
+<body>
+
+    <h1>Anonymous Functions</h1>
+
+    <p>
+        <?php echo $greeting(); ?>
+    </p>
+
+</body>
+
+</html>
+```
+
+### Key Idea
+
+**An anonymous function is a function without a name.**
