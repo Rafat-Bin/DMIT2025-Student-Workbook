@@ -1,26 +1,21 @@
+
 # Lesson 08 — Handling Multiple Forms
 
 In previous lessons, we worked with forms that send data using `GET` and `POST`.
 
-Now we are going to take that further and work with **multiple forms and multi-step form workflows**.
+Now we are going to take that further and work with **multiple forms, multi-step forms, and dynamically generated form fields**.
 
-A page may contain more than one form. Sometimes those forms perform completely different tasks. Other times, one form collects information that is needed to build or process another form.
+By the end of this lesson, you will be able to:
 
-This introduces some new questions:
+- Work with more than one form on a page
+- Determine which form was submitted
+- Carry information from one form to another
+- Use hidden form inputs
+- Generate form fields using PHP
+- Collect dynamically generated values
+- Process those values using an array
 
-```text
-Which form was submitted?
 
-How can we keep information that another form needs?
-
-How can one form lead to another form?
-
-What if we do not know how many input fields we need?
-
-How can PHP process dynamically generated fields?
-```
-
-In this lesson, we will learn how to manage these situations.
 
 ---
 
@@ -42,13 +37,15 @@ Submitting the first form does not automatically submit the second form.
 
 ## Complete Example — `index.php`
 
-```php
+```html
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>Multiple Forms</title>
 </head>
+
 <body>
 
     <h1>Account</h1>
@@ -97,6 +94,7 @@ Submitting the first form does not automatically submit the second form.
     </form>
 
 </body>
+
 </html>
 ```
 
@@ -130,19 +128,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 ?>
 ```
 
-We now have:
-
-```text
-Username Form
-      ↓
-process_username.php
-
-
-Message Form
-      ↓
-process_message.php
-```
-
 Because the forms have different `action` values, each form can be sent to a different processing file.
 
 ## Key Idea
@@ -159,11 +144,11 @@ For example:
 
 ```text
 Form 1 ─┐
-        ├──→ process.php
+        ├──→ index.php
 Form 2 ─┘
 ```
 
-Now PHP may need to determine which form was submitted.
+PHP may then need to determine which form was submitted.
 
 One way to do this is with a **hidden identifier**.
 
@@ -179,7 +164,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $_POST["form_id"] === "profile"
     ) {
 
-        $name = htmlspecialchars($_POST["name"]);
+        $name = $_POST["name"];
 
         echo "<p>Profile form submitted.</p>";
         echo "<p>Name: {$name}</p>";
@@ -191,7 +176,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $_POST["form_id"] === "message"
     ) {
 
-        $message = htmlspecialchars($_POST["message"]);
+        $message = $_POST["message"];
 
         echo "<p>Message form submitted.</p>";
         echo "<p>Message: {$message}</p>";
@@ -202,14 +187,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>Identify Forms</title>
 </head>
+
 <body>
 
     <h1>Multiple Forms</h1>
-
 
     <h2>Profile</h2>
 
@@ -267,10 +253,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     </form>
 
 </body>
+
 </html>
 ```
 
-Notice that both forms contain:
+Both forms contain:
 
 ```html
 <input type="hidden" name="form_id">
@@ -284,7 +271,7 @@ The first form sends:
 form_id = profile
 ```
 
-The second sends:
+The second form sends:
 
 ```text
 form_id = message
@@ -307,90 +294,52 @@ We created that name ourselves.
 We could have called it something else:
 
 ```html
-<input type="hidden" name="form_name" value="profile">
+<input
+    type="hidden"
+    name="form_name"
+    value="profile"
+>
 ```
 
 The important idea is that each form sends something that identifies it.
 
-## Key Idea
 
-There are different ways to distinguish forms.
-
-For example:
-
-```text
-Different action values
-
-OR
-
-A hidden identifier
-```
 
 ---
 
-# 3. Retaining Information Between Form Submissions
+# 3. Hidden Inputs and Multi-Step Forms
 
-Suppose one form collects some information.
-
-Later, another form needs that same information.
-
-The workflow might look like this:
-
-```text
-Form 1
-   ↓
-Submit
-   ↓
-PHP receives a value
-   ↓
-Form 2 needs that value
-```
-
-The important question is:
-
-> How does Form 2 get information that originally came from Form 1?
-
-A new form submission sends the values belonging to the form being submitted.
-
-If another value is still required, we need to **intentionally include it in the next form**.
+Sometimes one form collects information that another form needs later.
 
 For example:
 
 ```text
 Form 1
-
-user_id = 25
-
-      ↓
-
-PHP receives 25
-
-      ↓
-
-Form 2 also needs user_id
-
-      ↓
-
-Carry 25 into Form 2
+   ↓
+User enters a value
+   ↓
+PHP receives the value
+   ↓
+Form 2 needs the same value
 ```
 
-One way to do that is with a **hidden input**.
+A new form submission only sends the values belonging to the form being submitted.
 
----
+If Form 2 still needs information from Form 1, we need to **carry that information forward**.
 
-# 4. Hidden Form Inputs
+One way to do this is with a **hidden input**.
 
-A hidden input is created using:
+## Hidden Inputs
+
+A hidden input uses:
 
 ```html
 <input type="hidden">
 ```
 
-Unlike a normal text or number input, a hidden input is not displayed as a field the user fills out.
+It is part of the form, but the user does not see an editable field for it.
 
-However, it is still part of the form.
-
-## Example
+For example:
 
 ```html
 <input
@@ -400,210 +349,54 @@ However, it is still part of the form.
 >
 ```
 
-The user does not see an editable field containing `25`.
-
-But when the form is submitted using POST, PHP can access:
+When the form is submitted using POST, PHP can access:
 
 ```php
 $_POST["user_id"]
 ```
 
-and its value will be:
+and receive:
 
 ```text
 25
 ```
 
-## Complete Example — `index.php`
+The user did not have to enter `25`.
 
-```php
-<?php
-
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-
-    $user_id = $_POST["user_id"];
-    $message = htmlspecialchars($_POST["message"]);
-
-    echo "<p>User ID: {$user_id}</p>";
-    echo "<p>Message: {$message}</p>";
-}
-
-?>
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Hidden Input</title>
-</head>
-<body>
-
-    <h1>Send Message</h1>
-
-    <form method="POST">
-
-        <input
-            type="hidden"
-            name="user_id"
-            value="25"
-        >
-
-        <label for="message">
-            Message:
-        </label>
-
-        <input
-            type="text"
-            id="message"
-            name="message"
-            required
-        >
-
-        <button type="submit">
-            Send
-        </button>
-
-    </form>
-
-</body>
-</html>
-```
-
-If the user enters:
-
-```text
-Hello
-```
-
-the form submits both:
-
-```text
-user_id = 25
-message = Hello
-```
-
-even though the user only entered the message.
-
-The relationship is:
-
-```text
-<input
-    type="hidden"
-    name="user_id"
-    value="25"
->
-       ↓
-Form submitted
-       ↓
-$_POST["user_id"]
-       ↓
-25
-```
-
-## Why Use Hidden Inputs?
-
-Hidden inputs can be useful when information needs to be submitted without asking the user to enter it again.
-
-For example:
-
-```text
-Identify a form
-       ↓
-form_id
-
-
-Carry an ID
-       ↓
-user_id
-
-
-Carry information to another step
-       ↓
-number_of_items
-```
+The form carried the value automatically.
 
 ### Important
 
-A hidden input is **hidden from the page layout**, but it should not be treated as secret or secure storage.
+A hidden input is hidden from the page layout, but it should **not** be treated as secret or secure storage.
 
 Its purpose here is to carry information with a form submission.
 
-## Key Idea
-
-**Hidden inputs allow values to be submitted even though the user does not enter those values into visible fields.**
-
 ---
 
-# 5. Multi-Step Forms
+## Multi-Step Form Example
 
-Sometimes one form provides information needed to create another form.
+Suppose the first form asks the user to select a category.
 
-This creates a **multi-step workflow**.
+After the category is selected, a second form asks the user to enter an item belonging to that category.
 
-For example:
-
-```text
-Step 1
-Ask how many items the user has
-        ↓
-User enters 3
-        ↓
-PHP receives 3
-        ↓
-Step 2
-Generate 3 input fields
-```
-
-The first form affects what the second form looks like.
-
-## Simple Workflow
+The workflow is:
 
 ```text
 FORM 1
-Collect information
+Choose category
       ↓
-Submit
+GET
       ↓
-PHP receives information
+PHP receives category
       ↓
-Use information to prepare FORM 2
+FORM 2 appears
       ↓
-FORM 2
-Collect additional information
+Hidden input carries category
       ↓
-Submit
+POST
       ↓
-PHP processes everything needed
+PHP receives category + item
 ```
-
-The important concept is that **information from an earlier step may need to remain available during a later step**.
-
-That is where a hidden input becomes useful:
-
-```text
-Form 1
-   ↓
-value = 3
-   ↓
-PHP
-   ↓
-Form 2
-hidden value = 3
-   ↓
-Submit
-   ↓
-PHP still has 3
-```
-
----
-
-# 6. Complete Multi-Step Form Example
-
-Let's build a small example before introducing dynamic fields.
-
-The first form asks the user to select a category.
-
-The second form asks the user for an item in that category.
 
 ## Complete Example — `index.php`
 
@@ -614,17 +407,17 @@ $category = "";
 
 if (isset($_GET["category"])) {
 
-    $category = htmlspecialchars($_GET["category"]);
+    $category = $_GET["category"];
 
 } elseif (isset($_POST["category"])) {
 
-    $category = htmlspecialchars($_POST["category"]);
+    $category = $_POST["category"];
 }
 
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
-    $item = htmlspecialchars($_POST["item"]);
+    $item = $_POST["item"];
 
     echo "<h2>Submitted Information</h2>";
     echo "<p>Category: {$category}</p>";
@@ -635,10 +428,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>Multi-Step Form</title>
 </head>
+
 <body>
 
     <h1>Choose an Item</h1>
@@ -707,6 +502,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <?php endif; ?>
 
 </body>
+
 </html>
 ```
 
@@ -718,17 +514,19 @@ Suppose the user chooses:
 Books
 ```
 
-First:
+The first form sends:
 
 ```text
-GET Form
-   ↓
 category = Books
-   ↓
+```
+
+PHP receives:
+
+```php
 $_GET["category"]
 ```
 
-PHP stores:
+and stores:
 
 ```php
 $category = "Books";
@@ -736,7 +534,7 @@ $category = "Books";
 
 PHP then creates the second form.
 
-The second form contains:
+Inside that form is:
 
 ```html
 <input
@@ -746,14 +544,20 @@ The second form contains:
 >
 ```
 
-Now the second form submits:
+If the user enters:
+
+```text
+The Hobbit
+```
+
+the second form submits:
 
 ```text
 category = Books
 item = The Hobbit
 ```
 
-So the complete journey is:
+The complete journey is:
 
 ```text
 Form 1
@@ -764,24 +568,26 @@ GET
 $category
        ↓
 Hidden Input
-category = Books
        ↓
 Form 2
        ↓
 POST
        ↓
-$_POST["category"]
+category = Books
+item = The Hobbit
 ```
 
-That is the important multi-step concept.
+## Key Idea
+
+**A hidden input can carry information from an earlier step into a later form submission.**
 
 ---
 
-# 7. Dynamically Generating Form Fields
+# 4. Dynamically Generating Form Fields
 
 Sometimes we do not know ahead of time how many fields a form needs.
 
-For example, imagine asking:
+Imagine asking:
 
 > How many items would you like to enter?
 
@@ -790,97 +596,34 @@ The user might enter:
 ```text
 2
 ```
-
-or:
-
-```text
-5
-```
-
 or:
 
 ```text
 10
 ```
 
-Writing ten different versions of the form would not make sense.
+Writing a different form for every possibility would not make sense.
 
-Instead, PHP can generate the fields using a loop.
+Instead, PHP can use a loop to generate the required number of inputs.
 
-## Basic Example
-
-```php
-<?php
-
-$field_count = 4;
-
-for ($i = 1; $i <= $field_count; $i++) {
-
-    echo "<input type='text' name='item{$i}'>";
-
-}
-
-?>
-```
-
-The loop runs four times.
-
-The generated HTML contains input names equivalent to:
-
-```text
-item1
-item2
-item3
-item4
-```
-
-Look carefully at:
-
-```php
-"item{$i}"
-```
-
-When:
-
-```text
-$i = 1
-```
-
-PHP creates:
-
-```text
-item1
-```
-
-When:
-
-```text
-$i = 2
-```
-
-PHP creates:
-
-```text
-item2
-```
-
-and so on.
 
 ## Complete Runnable Example — `index.php`
 
 ```php
 <?php
 
-$field_count = 5;
+$field_count = 3;
 
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>Dynamic Fields</title>
 </head>
+
 <body>
 
     <h1>Enter Items</h1>
@@ -916,10 +659,11 @@ $field_count = 5;
     </form>
 
 </body>
+
 </html>
 ```
 
-PHP generates five fields:
+PHP generates:
 
 ```text
 Item 1: [          ]
@@ -927,31 +671,25 @@ Item 1: [          ]
 Item 2: [          ]
 
 Item 3: [          ]
-
-Item 4: [          ]
-
-Item 5: [          ]
 ```
 
-The important part is that every input has a unique name:
+Each input has a unique name:
 
 ```text
 item1
 item2
 item3
-item4
-item5
 ```
 
 ---
 
-# 8. Collecting Dynamically Submitted Values
+# 5. Collecting Dynamically Generated Fields
 
-Generating the fields is only half of the problem.
+Generating the inputs is only half of the job.
 
-PHP also needs to retrieve the submitted values.
+After the form is submitted, PHP also needs to retrieve their values.
 
-Suppose our form generated:
+If PHP generated:
 
 ```html
 <input name="item1">
@@ -959,7 +697,7 @@ Suppose our form generated:
 <input name="item3">
 ```
 
-After submission, PHP receives:
+then the submitted values are available through:
 
 ```php
 $_POST["item1"]
@@ -967,11 +705,9 @@ $_POST["item2"]
 $_POST["item3"]
 ```
 
-Because the names follow a pattern, we can use another loop to retrieve them.
+Because the input names follow a pattern, we can use another loop to retrieve them.
 
-## Using an Array
-
-We can start with an empty array:
+Start with an empty array:
 
 ```php
 $items = array();
@@ -1013,7 +749,31 @@ Banana
 Orange
 ```
 
-We only need this small amount of array knowledge for our form workflow.
+For now, this is the main array behaviour we need to understand.
+
+## Creating and Processing Use the Same Pattern
+
+This is the important connection:
+
+```text
+CREATE                     PROCESS
+
+name="item1"      →        $_POST["item1"]
+
+name="item2"      →        $_POST["item2"]
+
+name="item3"      →        $_POST["item3"]
+```
+
+Using the loop:
+
+```text
+CREATE                     PROCESS
+
+"item{$i}"        →        $_POST["item{$i}"]
+```
+
+The same naming pattern is used when creating and processing the inputs.
 
 ## Complete Runnable Example — `index.php`
 
@@ -1028,9 +788,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     for ($i = 1; $i <= $field_count; $i++) {
 
-        $items[] = htmlspecialchars(
-            $_POST["item{$i}"]
-        );
+        $items[] = $_POST["item{$i}"];
 
     }
 
@@ -1049,21 +807,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Dynamic Form</title>
+    <title>Dynamic Fields</title>
 </head>
 <body>
 
-    <h1>Enter Three Items</h1>
+    <h1>Enter Items</h1>
 
     <form method="POST">
 
         <?php
 
         for ($i = 1; $i <= $field_count; $i++) {
-
-            $value = isset($_POST["item{$i}"])
-                ? htmlspecialchars($_POST["item{$i}"])
-                : "";
 
             echo "
                 <p>
@@ -1075,11 +829,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         type='text'
                         id='item{$i}'
                         name='item{$i}'
-                        value='{$value}'
                         required
                     >
                 </p>
             ";
+
         }
 
         ?>
@@ -1094,57 +848,38 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 </html>
 ```
 
-There is an important connection here:
-
-```text
-GENERATE FIELD
-
-name="item{$i}"
-
-       ↓
-
-item1
-item2
-item3
-
-
-PROCESS FIELD
-
-$_POST["item{$i}"]
-
-       ↓
-
-$_POST["item1"]
-$_POST["item2"]
-$_POST["item3"]
-```
-
-We are using the **same naming pattern** when creating and processing the inputs.
 
 ## Key Idea
 
-When fields are created dynamically, their submitted values can also be processed dynamically.
+**When form fields are generated dynamically, their submitted values can also be processed dynamically.**
 
 ---
 
-# 9. Applying the Concepts — Mean, Median & Mode Calculator
+# 6. Applying the Concepts — Mean, Median & Mode Calculator
 
-Now we can put these concepts together in a larger application.
+Now we can combine the concepts from this lesson.
+
+We are going to create a **Mean, Median, and Mode Calculator**.
 
 The application will:
 
-1. Ask the user how many numbers are in a data set.
-2. Generate the required number of fields.
+1. Ask how many numbers are in a data set.
+2. Generate that many number fields.
 3. Let the user enter the numbers.
-4. Submit those numbers.
-5. Calculate the Mean, Median, and Mode.
-6. Display the results.
+4. Submit the numbers.
+5. Collect them into an array.
+6. Calculate the mean, median, and mode.
+7. Display the results.
 
-Before looking at the application, we need to understand what those three calculations mean.
+The main focus is the **form workflow**.
+
+You do not need to memorize every array function used in the calculations.
 
 ---
 
 ## Mean, Median, and Mode
+
+Before building the application, let's briefly review the calculations.
 
 Suppose we have:
 
@@ -1156,15 +891,9 @@ Suppose we have:
 
 The **mean** is the average.
 
-Add all the numbers:
-
 ```text
 2 + 3 + 3 + 5 + 7 = 20
-```
 
-Then divide by the number of values:
-
-```text
 20 ÷ 5 = 4
 ```
 
@@ -1189,7 +918,7 @@ Therefore:
 Median = 3
 ```
 
-If there is an even number of values, there are two middle values, so their average is used.
+If there is an even number of values, the two middle values are averaged.
 
 ### Mode
 
@@ -1200,8 +929,6 @@ The **mode** is the value that appears most often.
    ↑  ↑
 ```
 
-`3` appears twice.
-
 Therefore:
 
 ```text
@@ -1210,48 +937,51 @@ Mode = 3
 
 ---
 
-# Understanding the Calculator Workflow
+# 7. Understanding the Calculator Workflow
 
-Our application uses two forms.
+The calculator contains two forms.
 
 ```text
-FORM 1 — GET
+STEP 1
 
+GET Form
 How many numbers?
-        ↓
+       ↓
 set-length
-        ↓
-Generate second form
-        ↓
-FORM 2 — POST
-        ↓
+       ↓
+PHP receives the value
+       ↓
+Generate number fields
+
+
+STEP 2
+
+POST Form
+       ↓
 Hidden set-length
-        ↓
-Generate:
+       ↓
 num1
 num2
 num3
 ...
-        ↓
+       ↓
 User enters numbers
-        ↓
+       ↓
 POST
-        ↓
-Collect numbers into $nums
-        ↓
+       ↓
+Collect into $nums
+       ↓
 Calculate
-        ↓
-Display Results
+       ↓
+Display results
 ```
 
-Notice how this application brings together the concepts from this lesson:
+This combines the main concepts from the lesson:
 
 ```text
 Multiple forms
       ↓
 Multi-step workflow
-      ↓
-Retaining information
       ↓
 Hidden input
       ↓
@@ -1264,29 +994,29 @@ Collect values into an array
 
 ---
 
-# Step 1 — Retaining the Number of Fields
+# Step 1 — Determine the Number of Fields
 
-The application needs to know how many number fields should exist.
+The application needs to know how many number fields to generate.
 
-The supplied code stores this in:
+We store this value in:
 
 ```php
 $set_length
 ```
 
-It may arrive from the first GET form:
+The value may come from the first GET form:
 
 ```php
 $_GET["set-length"]
 ```
 
-or later from the POST form:
+or from the later POST form:
 
 ```php
 $_POST["set-length"]
 ```
 
-The application checks both:
+We can check both:
 
 ```php
 $set_length = '';
@@ -1295,43 +1025,41 @@ switch (true) {
 
     case isset($_GET["set-length"]):
 
-        $set_length =
-            htmlspecialchars($_GET["set-length"]);
+        $set_length = $_GET["set-length"];
 
         break;
 
 
     case isset($_POST["set-length"]):
 
-        $set_length =
-            htmlspecialchars($_POST["set-length"]);
+        $set_length = $_POST["set-length"];
 
         break;
 }
 ```
 
-The important concept is:
+Why check both?
+
+Because the application has two stages:
 
 ```text
 First submission
-       ↓
+      ↓
 GET
-       ↓
+      ↓
 set-length
 
 
-Later submission
-       ↓
+Second submission
+      ↓
 POST
-       ↓
+      ↓
 set-length
 ```
 
-The application keeps the information available during both stages.
-
 ---
 
-# Step 2 — The First Form
+# Step 2 — Ask How Many Numbers
 
 The first form asks:
 
@@ -1352,11 +1080,12 @@ The first form asks:
         id="set-length"
         name="set-length"
         value="<?php echo $set_length; ?>"
+        min="1"
+        required
     >
 
     <input
         type="submit"
-        name="submit-get"
         value="Generate Form"
     >
 
@@ -1369,19 +1098,13 @@ Suppose the user enters:
 4
 ```
 
-The GET submission gives PHP:
+PHP receives:
 
 ```php
 $_GET["set-length"]
 ```
 
-with the value:
-
-```text
-4
-```
-
-Now:
+and:
 
 ```php
 $set_length = 4;
@@ -1391,7 +1114,7 @@ $set_length = 4;
 
 # Step 3 — Generate the Second Form
 
-The second form only appears after `$set_length` contains a value:
+We only display the second form when `$set_length` contains a value.
 
 ```php
 <?php if ($set_length != '') : ?>
@@ -1413,19 +1136,15 @@ PHP knows that four number inputs are required.
 
 # Step 4 — Carry `set-length` Forward
 
-There is a problem.
-
 The second form uses POST.
 
-We still need to know that:
+However, we still need to remember that:
 
 ```text
 set-length = 4
 ```
 
-when the second form is submitted.
-
-So the application places it into a hidden input:
+So we include it in the second form using a hidden input:
 
 ```php
 <input
@@ -1435,40 +1154,35 @@ So the application places it into a hidden input:
 >
 ```
 
-Now the second form contains:
+Now when the second form is submitted, PHP receives the value again through:
 
-```text
-set-length = 4
+```php
+$_POST["set-length"]
 ```
 
-even though the user does not need to type `4` again.
+The user does not need to enter it again.
 
-The journey is:
+The value moves through the application like this:
 
 ```text
 GET Form
        ↓
 set-length = 4
        ↓
-$set_length = 4
+$set_length
        ↓
 Hidden Input
-set-length = 4
        ↓
 POST Form
        ↓
 $_POST["set-length"]
-       ↓
-4
 ```
-
-This is the main reason the hidden input is important in this application.
 
 ---
 
 # Step 5 — Generate the Number Fields
 
-The application now uses `$set_length` in a loop:
+Now we can use `$set_length` in a loop.
 
 ```php
 for ($i = 1; $i <= $set_length; $i++) {
@@ -1494,7 +1208,7 @@ If:
 $set_length = 4;
 ```
 
-the loop generates:
+PHP generates:
 
 ```text
 num1
@@ -1503,7 +1217,7 @@ num3
 num4
 ```
 
-The form therefore looks approximately like:
+The form looks approximately like:
 
 ```text
 Enter Number 1: [     ]
@@ -1521,17 +1235,17 @@ Enter Number 4: [     ]
 
 # Step 6 — Retain the Dynamic Values
 
-The supplied application also retains values entered into the dynamically generated fields.
+We can also make the dynamically generated fields **sticky**.
 
 Inside the loop:
 
 ```php
 $value = isset($_POST["num{$i}"])
-    ? htmlspecialchars($_POST["num{$i}"])
+    ? $_POST["num{$i}"]
     : '';
 ```
 
-Then:
+Then use `$value` when generating the input:
 
 ```php
 echo "
@@ -1545,21 +1259,23 @@ echo "
 ";
 ```
 
-This uses the sticky-form technique from the previous lesson, but now we are applying it to **dynamically generated inputs**.
+This is the same sticky-form technique from the previous lesson.
+
+The difference is that we are now applying it to **dynamically generated inputs**.
 
 ---
 
 # Step 7 — Collect the Numbers
 
-After the second form is submitted, PHP needs all the entered numbers.
+After the second form is submitted, PHP needs to retrieve all of the entered numbers.
 
-Start with:
+We begin with an empty array:
 
 ```php
 $nums = array();
 ```
 
-Then use the same naming pattern:
+Then use the same naming pattern that we used when generating the fields:
 
 ```php
 for ($i = 1; $i <= $set_length; $i++) {
@@ -1579,73 +1295,65 @@ If the user entered:
 7
 ```
 
-then `$nums` contains those values.
-
-The important connection is:
+then `$nums` contains:
 
 ```text
-Generated
-
-num1
-num2
-num3
-num4
-num5
-
-       ↓
-
-Submitted
-
-$_POST["num1"]
-$_POST["num2"]
-$_POST["num3"]
-$_POST["num4"]
-$_POST["num5"]
-
-       ↓
-
-Collected
-
-$nums
+2, 3, 3, 5, 7
 ```
+
+Notice the relationship:
+
+```text
+GENERATED                  PROCESSED
+
+num1              →        $_POST["num1"]
+
+num2              →        $_POST["num2"]
+
+num3              →        $_POST["num3"]
+
+num4              →        $_POST["num4"]
+
+num5              →        $_POST["num5"]
+```
+
+The loop allows PHP to process any number of fields without writing each one manually.
 
 ---
 
 # Step 8 — Process the Numbers
 
-The supplied `process.php` first sorts the numbers:
+Once the numbers are inside `$nums`, we can perform the calculations.
+
+First, sort the numbers:
 
 ```php
 sort($nums);
 ```
 
-Then counts them:
+Count them:
 
 ```php
 $count = count($nums);
 ```
 
-Then calculates their total:
+Calculate their total:
 
 ```php
 $sum = array_sum($nums);
 ```
 
-The mean is:
+Calculate the mean:
 
 ```php
 $mean = $sum / $count;
 ```
 
-For the median, the code determines the middle position:
+Calculate the median:
 
 ```php
 $middle = floor(($count - 1) / 2);
-```
 
-Then checks whether the number of values is even or odd:
-
-```php
 if ($count % 2 == 0) {
 
     $median =
@@ -1657,7 +1365,7 @@ if ($count % 2 == 0) {
 }
 ```
 
-For the mode:
+Calculate the mode:
 
 ```php
 $mode = array_count_values($nums);
@@ -1667,63 +1375,45 @@ $mode = array_keys(
     max($mode)
 );
 
-$mode = implode(', ', $mode);
+$mode = implode(", ", $mode);
 ```
 
-Some PHP functions being used are:
+### Don't Worry About Memorizing These Yet
+
+This application uses several PHP functions:
 
 ```text
 sort()
-→ sorts an array
-
-
 count()
-→ counts the values in an array
-
-
 array_sum()
-→ adds the numeric values
-
-
 floor()
-→ rounds down
-
-
 array_count_values()
-→ counts how often each value occurs
-
-
 max()
-→ finds the largest value
-
-
 array_keys()
-→ retrieves array keys
-
-
 implode()
-→ joins array values into a string
 ```
 
-The important lesson here is not memorizing every function immediately.
+You do not need to memorize all of these functions right now.
 
-Understand the larger workflow:
+The important workflow for this lesson is:
 
 ```text
-Submitted dynamic fields
-          ↓
-Collect into array
-          ↓
-Process array
-          ↓
-Produce results
+Generate fields
+      ↓
+Submit fields
+      ↓
+Collect values into an array
+      ↓
+Process the array
+      ↓
+Display results
 ```
 
 ---
 
 # Complete Application
 
-The following puts the complete application together using the same overall structure as the supplied files.
+Now let's put everything together.
 
 ## `index.php`
 
@@ -1753,16 +1443,14 @@ The following puts the complete application together using the same overall stru
 
         case isset($_GET["set-length"]):
 
-            $set_length =
-                htmlspecialchars($_GET["set-length"]);
+            $set_length = $_GET["set-length"];
 
             break;
 
 
         case isset($_POST["set-length"]):
 
-            $set_length =
-                htmlspecialchars($_POST["set-length"]);
+            $set_length = $_POST["set-length"];
 
             break;
     }
@@ -1795,7 +1483,6 @@ The following puts the complete application together using the same overall stru
 
         <input
             type="submit"
-            name="submit-get"
             value="Generate Form"
         >
 
@@ -1823,7 +1510,7 @@ The following puts the complete application together using the same overall stru
 
                 $value =
                     isset($_POST["num{$i}"])
-                    ? htmlspecialchars($_POST["num{$i}"])
+                    ? $_POST["num{$i}"]
                     : '';
 
                 echo "<p>";
@@ -1958,7 +1645,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 # Following the Complete Workflow
 
-Suppose the user first enters:
+Suppose the user enters:
 
 ```text
 5
@@ -1966,19 +1653,35 @@ Suppose the user first enters:
 
 ## First Submission
 
+The GET form sends:
+
 ```text
-GET Form
-   ↓
 set-length = 5
-   ↓
-$_GET["set-length"]
-   ↓
-$set_length = 5
 ```
 
-PHP now generates five number fields.
+PHP receives:
 
-It also generates:
+```php
+$_GET["set-length"]
+```
+
+and stores:
+
+```php
+$set_length = 5;
+```
+
+PHP now generates five number fields:
+
+```text
+num1
+num2
+num3
+num4
+num5
+```
+
+The second form also contains:
 
 ```html
 <input
@@ -1988,7 +1691,7 @@ It also generates:
 >
 ```
 
-The user enters:
+Suppose the user enters:
 
 ```text
 2
@@ -2012,19 +1715,17 @@ num4 = 5
 num5 = 7
 ```
 
-PHP receives:
+PHP collects the numbers using:
 
-```text
-$_POST["set-length"]
+```php
+for ($i = 1; $i <= $set_length; $i++) {
 
-$_POST["num1"]
-$_POST["num2"]
-$_POST["num3"]
-$_POST["num4"]
-$_POST["num5"]
+    $nums[] = $_POST["num{$i}"];
+
+}
 ```
 
-The loop collects the numbers:
+The result is:
 
 ```text
 $nums
@@ -2032,9 +1733,81 @@ $nums
 2, 3, 3, 5, 7
 ```
 
-Then PHP processes the array and displays the results.
-
-That is the complete multi-form workflow.
+PHP then processes the array and displays the results.
 
 ---
 
+# Lesson Summary
+
+In this lesson, we learned that a page can contain **multiple forms**.
+
+Each form is submitted independently.
+
+When multiple forms submit to the same PHP page, we can identify them using a value such as:
+
+```html
+<input
+    type="hidden"
+    name="form_id"
+    value="profile"
+>
+```
+
+We also learned that **hidden inputs** can carry information from one step of a form workflow to another.
+
+```text
+Form 1
+   ↓
+PHP receives value
+   ↓
+Hidden input
+   ↓
+Form 2
+   ↓
+PHP receives value again
+```
+
+When we do not know how many fields are needed ahead of time, PHP can generate them using a loop:
+
+```php
+for ($i = 1; $i <= $field_count; $i++) {
+
+    echo "<input name='item{$i}'>";
+
+}
+```
+
+We can then use the same naming pattern to collect the submitted values:
+
+```php
+for ($i = 1; $i <= $field_count; $i++) {
+
+    $items[] = $_POST["item{$i}"];
+
+}
+```
+
+The overall pattern is:
+
+```text
+Collect information
+       ↓
+Submit form
+       ↓
+PHP receives information
+       ↓
+Use information to create another form
+       ↓
+Carry required values forward
+       ↓
+Submit second form
+       ↓
+Collect values
+       ↓
+Process values
+```
+
+The most important idea is not memorizing every line of code.
+
+It is understanding **how the data moves from one form submission to the next**.
+````
