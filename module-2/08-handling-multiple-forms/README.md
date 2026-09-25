@@ -665,14 +665,21 @@ After the form is submitted, another loop can collect those values.
 ```php
 <?php
 
-$field_count = 3;
+$field_count = 0;
 
+// Get number of fields
+if (isset($_GET["field_count"])) {
+    $field_count = (int) $_GET["field_count"];
+}
+
+// When item form is submitted
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
+
+    $field_count = (int) $_POST["field_count"];
 
     $items = array();
 
     for ($i = 1; $i <= $field_count; $i++) {
-
         $items[] = $_POST["item{$i}"];
     }
 }
@@ -689,37 +696,73 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 <body>
 
-    <h1>Enter Items</h1>
+    <h1>Choose Number of Items</h1>
 
-    <form method="POST">
+    <!-- First form -->
+    <form method="GET">
 
-        <?php
+        <label for="field_count">
+            How many items?
+        </label>
 
-        for ($i = 1; $i <= $field_count; $i++) {
-
-            echo "
-                <p>
-                    <label for='item{$i}'>
-                        Item {$i}:
-                    </label>
-
-                    <input
-                        type='text'
-                        id='item{$i}'
-                        name='item{$i}'
-                        required
-                    >
-                </p>
-            ";
-        }
-
-        ?>
+        <input
+            type="number"
+            id="field_count"
+            name="field_count"
+            min="1"
+            required
+        >
 
         <button type="submit">
-            Submit
+            Continue
         </button>
 
     </form>
+
+
+    <?php if ($field_count > 0) : ?>
+
+        <h2>Enter Items</h2>
+
+        <!-- Second form -->
+        <form method="POST">
+
+            <!-- Carry field_count from GET to POST -->
+            <input
+                type="hidden"
+                name="field_count"
+                value="<?php echo $field_count; ?>"
+            >
+
+            <?php
+
+            for ($i = 1; $i <= $field_count; $i++) {
+
+                echo "
+                    <p>
+                        <label for='item{$i}'>
+                            Item {$i}:
+                        </label>
+
+                        <input
+                            type='text'
+                            id='item{$i}'
+                            name='item{$i}'
+                            required
+                        >
+                    </p>
+                ";
+            }
+
+            ?>
+
+            <button type="submit">
+                Submit
+            </button>
+
+        </form>
+
+    <?php endif; ?>
 
 
     <?php
@@ -729,7 +772,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         echo "<h2>Submitted Items</h2>";
 
         foreach ($items as $item) {
-
             echo "<p>{$item}</p>";
         }
     }
