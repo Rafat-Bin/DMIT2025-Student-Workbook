@@ -838,4 +838,186 @@ for ($i = 1; $i <= $field_count; $i++) {
 
 `$items[]` adds each submitted value to the `$items` array.
 
+---
+
+# Exercises
+
+These exercises practice the main ideas from this lesson.
+
+Try to complete each exercise before looking back at the examples.
+
+---
+
+## Exercise 1 — Identifying Which Form Was Submitted
+
+Create a PHP page that contains **two forms**.
+
+Both forms should submit to the **same page** using `POST`.
+
+### Form 1 — Student
+
+The first form should ask the user to enter a student name.
+
+```text
+Student Name:
+[________________]
+
+[Submit Student]
+```
+
+Add a hidden input to this form.
+
+The hidden input should use:
+
+```text
+name = form_id
+value = student
+```
+
+### Form 2 — Course
+
+The second form should ask the user to enter a course name.
+
+```text
+Course Name:
+[________________]
+
+[Submit Course]
+```
+
+Add a hidden input to this form.
+
+The hidden input should use:
+
+```text
+name = form_id
+value = course
+```
+
+### Your PHP Code
+
+Use:
+
+```php
+$_POST["form_id"]
+```
+
+to determine which form was submitted.
+
+If the student form was submitted, display:
+
+```text
+Student submitted: Alex
+```
+
+If the course form was submitted, display:
+
+```text
+Course submitted: Web Development
+```
+
+### Requirements
+
+Your program should:
+
+- Include two forms on the same page
+- Use `POST` for both forms
+- Use a hidden input in each form
+- Give each form a different `form_id` value
+- Use `isset()` before checking `form_id`
+- Display the value from the form that was submitted
+
+---
+
+## Exercise 2 — Carrying a Value Between Forms
+
+Create a PHP page that uses **two forms**.
+
+The first form will collect a programming language.
+
+The second form will collect a reason for choosing that language.
+
+### Form 1 — Choose a Language
+
+Create a form that allows the user to select:
+
+```text
+PHP
+JavaScript
+Python
+```
+
+For example:
+
+```text
+Programming Language:
+
+[ PHP ▼ ]
+
+[Continue]
+```
+
+Submit this form using `GET`.
+
+PHP should retrieve the selected language using:
+
+```php
+$_GET["language"]
+```
+
+### Form 2 — Enter a Reason
+
+After the user selects a language, display a second form.
+
+For example, if the user selected PHP:
+
+```text
+Why do you like PHP?
+
+[________________________]
+
+[Submit]
+```
+
+Submit this form using `POST`.
+
+The second form must contain a hidden input that carries the selected language.
+
+For example:
+
+```html
+<input
+    type="hidden"
+    name="language"
+    value="<?php echo $language; ?>"
+>
+```
+
+PHP should then receive both:
+
+```text
+language
+reason
+```
+
+After the second form is submitted, display the submitted information.
+
+For example:
+
+```text
+Language: PHP
+Reason: I like working with forms.
+```
+
+### Requirements
+
+Your program should:
+
+- Use `GET` for the first form
+- Use `POST` for the second form
+- Display the second form only after a language is selected
+- Use a hidden input to carry the language into the second form
+- Retrieve the language and reason after the second form is submitted
+- Display both values
+
 
