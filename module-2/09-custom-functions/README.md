@@ -585,3 +585,230 @@ $greeting = function () {
 ### Key Idea
 
 **An anonymous function is a function without a name.**
+
+---
+
+# Practice Exercises
+
+These exercises practice the main ideas from this lesson.
+
+Try to complete each exercise before looking back at the examples.
+
+---
+
+## Exercise 1 — Calculate a Final Price
+
+Create a function named:
+
+```php
+calculate_total()
+```
+
+The function should receive two parameters:
+
+```text
+$price
+$quantity
+```
+
+Multiply `$price` by `$quantity` to calculate the total.
+
+If the total is **100 or more**, apply a **10% discount**.
+
+The function should return the final total.
+
+For example:
+
+```php
+$total = calculate_total(25, 2);
+```
+
+The result should be:
+
+```text
+50
+```
+
+If we call:
+
+```php
+$total = calculate_total(50, 3);
+```
+
+The original total is:
+
+```text
+150
+```
+
+Because the total is `100` or more, the function should apply a 10% discount.
+
+The returned result should be:
+
+```text
+135
+```
+
+Display the returned value on the page.
+
+### Requirements
+
+Your program should:
+
+- Create a function named `calculate_total()`
+- Use `$price` and `$quantity` as parameters
+- Multiply the price by the quantity
+- Use an `if` statement to check the total
+- Apply a 10% discount when the total is `100` or more
+- Return the final total
+- Call the function and display the returned value
+
+---
+
+## Exercise 2 — Student Grade
+
+Create a function named:
+
+```php
+get_grade()
+```
+
+The function should receive a student's mark as a parameter.
+
+Use conditions to determine the student's grade.
+
+Use the following grading system:
+
+```text
+80 or higher  →  A
+70 to 79      →  B
+60 to 69      →  C
+50 to 59      →  D
+Below 50      →  F
+```
+
+For example:
+
+```php
+$grade = get_grade(76);
+```
+
+The function should return:
+
+```text
+B
+```
+
+Call the function using three different marks.
+
+For example:
+
+```php
+get_grade(85);
+get_grade(72);
+get_grade(45);
+```
+
+Display each returned grade on the page.
+
+### Requirements
+
+Your program should:
+
+- Create a function named `get_grade()`
+- Pass the student's mark into the function
+- Use `if`, `elseif`, and `else`
+- Return the correct letter grade
+- Call the function with at least three different marks
+- Display each returned value
+
+---
+
+## Exercise 3 — Shipping Calculator
+
+Create a function named:
+
+```php
+calculate_shipping()
+```
+
+The function should receive two parameters:
+
+```text
+$weight
+$rate
+```
+
+Give `$rate` a default value of:
+
+```php
+2
+```
+
+Calculate the shipping cost using:
+
+```text
+weight × rate
+```
+
+If the weight is `10` or greater, add an additional `$5` to the shipping cost.
+
+For example:
+
+```php
+$shipping = calculate_shipping(4);
+```
+
+Because no rate was provided, PHP should use the default rate of `2`.
+
+The calculation is:
+
+```text
+4 × 2 = 8
+```
+
+The function should return:
+
+```text
+8
+```
+
+Now call:
+
+```php
+$shipping = calculate_shipping(12, 3);
+```
+
+The calculation is:
+
+```text
+12 × 3 = 36
+```
+
+Because the weight is `10` or greater, add `$5`:
+
+```text
+36 + 5 = 41
+```
+
+The function should return:
+
+```text
+41
+```
+
+Display both returned shipping costs on the page.
+
+### Requirements
+
+Your program should:
+
+- Create a function named `calculate_shipping()`
+- Use `$weight` and `$rate` as parameters
+- Give `$rate` a default value of `2`
+- Calculate the shipping cost
+- Use an `if` statement to check the weight
+- Add `$5` when the weight is `10` or greater
+- Return the final shipping cost
+- Call the function once using the default rate
+- Call the function again using a different rate
