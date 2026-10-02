@@ -1,4 +1,4 @@
-SELECT `city_name`, province FROM `cities` WHERE 1;
+SELECT city_name, province FROM cities WHERE 1;
 -- gives us just city name and province
 
 SELECT city_name, province FROM cities LIMIT 5;
@@ -13,16 +13,16 @@ SELECT city_name, province, population from cities order by population DESC;
 SELECT city_name, population from cities WHERE province = 'on' AND population > 1000000;
 -- all cities of at least 1 million people in ontario
 
-SELECT * FROM `cities` WHERE is_capital = 1;
+SELECT * FROM cities WHERE is_capital = 1;
 -- all capital cities
 
-SELECT * FROM `cities` where city_name like '%john%';
+SELECT * FROM cities where city_name like '%john%';
 -- all cities that contain john
 
-SELECT * FROM `cities` where province = 'ns' or province = 'nb' or province = 'nl' or province = 'pe';
+SELECT * FROM cities where province = 'ns' or province = 'nb' or province = 'nl' or province = 'pe';
 -- all maritime provinces
 
-SELECT * FROM `cities` where (province = 'ns' or province = 'nb' or province = 'nl' or province = 'pe') AND is_capital = true;
+SELECT * FROM cities where (province = 'ns' or province = 'nb' or province = 'nl' or province = 'pe') AND is_capital = true;
 -- maritime capital cities
 
 
