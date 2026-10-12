@@ -8,8 +8,3 @@
 </body>
 </html>
 
-<?php 
-
-// Finally, we must always close our connection to the database.
-
-?>
