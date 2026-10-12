@@ -1,8 +1,10 @@
 <?php
-// Establish a connection to the database
 
+
+require_once dirname(__DIR__) . '/data/connect.php';
+
+$conn = db_connect();
 ?>
-
 <!doctype html>
 <html lang="en">
 
@@ -10,7 +12,7 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title><?php echo $title; ?> | Global Happiness Index</title>
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous">
     </head>
 
     <body class="d-flex flex-column justify-content-between min-vh-100">
@@ -31,3 +33,6 @@
         <main class="container">
             <section class="row justify-content-center">
                 <div class="col-md-10 col-lg-8">
+
+
+
