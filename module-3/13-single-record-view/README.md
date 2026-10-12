@@ -1,139 +1,317 @@
-# Single Record View
+# Lesson 13 — Single Record View
 
-Often, displaying all of the data that we have doesn't make for a good user experience. Generating a massive HTML table with as many columns as we have in our database can make it difficult to keep track of things and create a terrible mobile layout. 
+**PHP and MySQL · Beginner Lecture Notes**
 
-Instead, we can display a few columns to the user and have a separate page that retrieves all of the information for a single record. This can make things less overwhelming.
+## Introduction
 
----
+In Lesson 12, we connected PHP to MySQL and displayed **multiple records**. In this lesson, we will let visitors select one country from the Happy Planet Index and see its statistics on a second page. This is called a **single record view**.
 
-## SQL Injections
+**By the end of this lesson, you will be able to:** explain list and single record views; create links with query strings; read `$_GET`; validate a rank; explain SQL injection; use a prepared statement; display a record with a reusable include; and handle invalid or missing records.
 
-An SQL Injection is when a hacker is able to execute arbitrary SQL requests. The hacker submits a string that manipulates standard SQL syntax and injects their SQL code into our code.
+## 1. Set Up the Database
 
-Any SQL queries that use dynamic data values are vulnerable. 
+Import `private/happiness_index.sql` into the `dmit2025` database using phpMyAdmin at `http://localhost:8081`. The Happy Planet Index dataset contains information about 152 countries.
 
-It doesn't matter where the data originates, either: it can come from URL parameters (a query string), form data, cookies, sessions, or data already in the database. All of these are vulnerable entry points to a hacker.
+Test the import:
 
-Because of this, SQL Injections are constantly ranked as the number one security risk on the web by OWASP (Open Web Application Security Project). 
-
-
-### How do SQL Injections work? 
-
-When data is inserted using SLQ, it's enclosed in single quotes. This can cause bugs in very innocent ways. For example: 
-
-```SQL
-	INSERT INTO subjects (menu_name, visible) VALUES ('David's Story', TRUE);
+```sql
+SELECT * FROM happiness_index LIMIT 5;
 ```
 
-In this example, the apostrophe in `David's` causes a syntactical error. SQL expects that a comma should come after `David`, not the rest of the word or phrase.
+We will use the `rank` and `country` columns to build the list, and the other columns to display details.
 
-A hacker can exploit this bug to cause chaos. They can also use semicolons to execute additional SQL commands.
+## 2. Two Views, One Database
 
-```PHP
-	$input = "' INSERT INTO admins (username, password) VALUES ('hacker', 'mypassword1'); --"
+A **list view** shows many records. A **single record view** shows one selected record.
+
+```text
+index.php → click View Stats → country.php → country statistics
 ```
 
-In this case, a hacker is trying to create a username and password that allows them to login to a new account with administrative privileges. 
+We do not need a separate PHP page for every country. The same `country.php` can retrieve different records based on the URL.
 
-*Note*: The double dash (--) at the end of the injection is SQL syntax for a comment. This means that anything following it will be ignored. Often, this will prevent the application from throwing an error.
+## 3. Reuse Our Connection
 
+Our existing Lesson 12 `db_connect()` function uses `mysqli_connect()` and returns a MySQLi connection. We can keep it.
 
-### How do we prevent SQL Injections? 
+MySQLi supports two styles:
 
-Just like we break down `specialchars` (special syntax or characters) that have meaning in HTML to prevent cross-site scripting attacks, we can convert any characters with meaning in SQL to data before sending it off to be executed by MySQLi. 
+```php
+// Procedural
+$result = mysqli_query($conn, $sql);
 
-Simply put? We need to add a backslash `\` before all single quotes in a string. This is how we escape them for SQL. 
-
-Let's take our example from earlier:
-
-```SQL
-	INSERT INTO subjects (menu_name, visible) VALUES ('David\'s Story', TRUE);
+// Object-oriented
+$result = $conn->query($sql);
 ```
 
-By adding the escape character, SQL no longer things the single quote is part of a statement to be executed. 
+Both use the same connection. This lesson uses the object-oriented style. We will introduce the `prepare()` method only after discussing user input.
 
+**Project note:** Keep the original `data/connect.php`, `includes/header.php`, and `includes/footer.php`. The full code below works with these existing files. The footer calls `db_disconnect($connection)`, so retain that helper from Lesson 12.
 
-### PHP built-in functions
+## 4. Identify a Country
 
-The following functions can help add backslashes before a single quote:
+The `rank` column identifies the country we want to retrieve in this dataset.
 
-```PHP
-	/* This takes a string (generally your user input) and adds slashes before characters that need to be escaped, like single quotes, double quotes, a backslash, and the null character. */
-
-	addslashes($string);
-
-	/* This is part of the MySQLi API and is designed specially for SQL injections. In addition to the method above, it also escapes characters like line return and other weirdness. */
-
-	mysqli_real_escape_string($db, $string);
-
+```sql
+SELECT * FROM happiness_index WHERE `rank` = 5;
 ```
 
-*Note*: More on null characters can be read here: https://owasp.org/www-community/attacks/Embedding_Null_Code
+This works, but it always retrieves rank 5. We need to let the user choose the rank.
 
-Note that the second method requires the database connection handle, so it will only work when we have an active connection to a database. This is because it takes into account things like the charset the database uses when sanitising the input. 
+## 5. Query Strings
+
+A **query string** passes small pieces of information through a URL:
+
+```text
+country.php?rank=5
+```
+
+The `?` starts the query string. `rank` is the parameter name, and `5` is its value. Different links can open the same PHP page with different ranks:
+
+```text
+country.php?rank=1
+country.php?rank=2
+country.php?rank=3
+```
+
+A URL can have more than one parameter: `country.php?rank=5&country=Ecuador`. The `&` separates parameters. Our project sends both `rank` and `country`, but **only rank is needed to query the database**. We will use that simpler link here. The country name will come from the database, not from the URL.
+
+## 6. Build the List Page
+
+Our `index.php` needs to (1) retrieve countries, (2) display them, and (3) create a View Stats link for each row.
+
+Inside the loop, `$row['rank']` contains the current country's rank. We can create the link directly:
+
+```php
+<a href="country.php?rank=<?= urlencode($row['rank']) ?>">View Stats</a>
+```
+
+`urlencode()` makes the value safe to place in a URL. Here the rank is numeric, but it is a useful habit when constructing query strings.
+
+### Complete `index.php`
+
+```php
+<?php
+$title = 'Home';
+
+include 'includes/header.php';
+$sql = 'SELECT `rank`, `country` FROM happiness_index';
+$result = $conn->query($sql);
+?>
+
+<h2 class="display-5 my-3">Welcome to the Happy Planet Index</h2>
+<p class="lead mb-5">
+    Explore the countries in the Happy Planet Index.
+    Select View Stats to see more information.
+</p>
+
+<?php if ($result->num_rows > 0): ?>
+
+    <table class="table table-bordered">
+        <thead class="table-dark">
+            <tr>
+                <th>HPI Rank</th>
+                <th>Country Name</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php while ($row = $result->fetch_assoc()): ?>
+                <tr>
+                    <td><?= htmlspecialchars((string) $row['rank']) ?></td>
+                    <td><?= htmlspecialchars($row['country']) ?></td>
+                    <td>
+                        <a class="link-success"
+                           href="country.php?rank=<?= urlencode($row['rank']) ?>">
+                            View Stats
+                        </a>
+                    </td>
+                </tr>
+            <?php endwhile; ?>
+        </tbody>
+    </table>
+
+<?php else: ?>
+    <p>No countries found.</p>
+<?php endif; ?>
 
 
-## Prepared SQL Statements 
+<?php include 'includes/footer.php'; ?>
+```
 
-Prepared SQL statements in PHP allow you to execute SQL queries with parameters that are provided separately from the query itself. This can help prevent SQL injection attacks, as well as improve performance when executing multiple queries with the same structure.
+**What is happening?** `$connection->query($sql)` runs the query. `$result->fetch_assoc()` gives us one row at a time. We display its rank and country, then create a link containing that rank.
 
-### Example
+**Try it:** Open `index.php` and hover over several View Stats links. Look for `?rank=` in the URLs.
 
-```PHP
-// Create a new mysqli object with your database credentials
-$mysqli = new mysqli("localhost", "username", "password", "database");
+## 7. Read the Rank with `$_GET`
 
-// Prepare a statement with a parameter placeholder
-$stmt = $mysqli->prepare("SELECT * FROM users WHERE id = ?");
+When someone opens `country.php?rank=5`, PHP makes the value available as `$_GET['rank']`.
 
-// Bind the parameter to a variable
-$id = 123;
-$stmt->bind_param("i", $id);
+```php
+$rank = $_GET['rank'] ?? null;
+```
 
-// Execute the statement and get the result set
-$stmt->execute();
-$result = $stmt->get_result();
+`?? null` means: use `null` if the parameter is missing. This avoids an undefined-array-key warning.
 
-// Loop through the result set and fetch each row as an associative array
-while ($row = $result->fetch_assoc()) {
-    echo $row["name"] . "<br>";
+For example, `country.php?rank=5` supplies `5`, but `country.php` supplies no rank. Query strings are automatically URL-decoded by PHP when they enter `$_GET`; we do not need to call `urldecode()` ourselves.
+
+
+## 8. Check the Rank
+
+A user can edit the URL, so we must check that the rank is a positive integer:
+
+```php
+$rank = filter_var($_GET['rank'] ?? null, FILTER_VALIDATE_INT);
+
+if (!$rank || $rank < 1) {
+    echo 'Invalid country.';
+    exit;
 }
-
-// Close the statement and connection
-$stmt->close();
-$mysqli->close();
-
 ```
 
-In this example, we create a mysqli object to connect to the database, and then prepare a statement with a parameter placeholder using the `prepare()` method. We then bind the parameter to a variable using the `bind_param()` method, and execute the statement with the `execute()` method. Finally, we loop through the result set and fetch each row as an associative array using the `fetch_assoc()` method.
+`FILTER_VALIDATE_INT` checks for an integer. If the value is missing, invalid, zero, or negative, we stop. The rank is valid in format, but we still need to check whether the country exists.
 
+## 9. Retrieve One Country Safely
 
-### Prepared Statements and SQL Injections
+We could write a query with a fixed rank:
 
-Prepared SQL statements help prevent SQL injection attacks by separating the SQL query from the user-provided input. When using prepared statements, the query is first prepared with placeholders for the input parameters, and then the actual values for the parameters are bound to the placeholders before the query is executed.
-
-This process ensures that the user input is properly sanitized and escaped before being added to the query. The database engine then treats the input as data rather than part of the SQL query, eliminating the possibility of SQL injection attacks.
-
-Here's an example of how prepared statements can prevent SQL injection attacks:
-
-```PHP
-// User input
-$username = "'; DROP TABLE users; --";
-
-// Prepared statement
-$stmt = $mysqli->prepare("SELECT * FROM users WHERE username = ?");
-
-// Bind parameter
-$stmt->bind_param("s", $username);
-
-// Execute statement
-$stmt->execute();
-
+```sql
+SELECT * FROM happiness_index WHERE `rank` = 5;
 ```
 
-In this example, if we were to concatenate the user-provided $username variable directly into the SQL query, it would cause the users table to be dropped. However, because we're using a prepared statement and binding the parameter, the database engine treats the user input as data rather than as part of the SQL query, preventing the SQL injection attack.
+But the rank comes from the URL. We should **not** insert user input directly into SQL, because it can lead to **SQL injection**.
+
+Instead, use a **prepared statement**. The `?` is a placeholder for the rank:
+
+```php
+$query = 'SELECT * FROM happiness_index WHERE `rank` = ?';
+
+$statement = $conn->prepare($query);
+$statement->bind_param('i', $rank);
+$statement->execute();
+
+$result = $statement->get_result();
+$row = $result->fetch_assoc();
+
+$statement->close();
+```
+
+| Method | Purpose |
+|---|---|
+| `prepare()` | Prepares the SQL with its placeholder |
+| `bind_param('i', $rank)` | Supplies the integer rank (`i` means integer) |
+| `execute()` | Runs the query |
+| `get_result()` | Gets the result set |
+| `fetch_assoc()` | Gets the matching record |
+| `close()` | Closes the statement |
+
+If there is no matching record, `$row` will be `null`.
+
+## 10. Display the Country
+
+After fetching the record, we can display values from `$row`:
+
+```php
+<h2><?= htmlspecialchars($row['country']) ?></h2>
+<p>Rank: <?= htmlspecialchars((string) $row['rank']) ?></p>
+<p>Life Expectancy: <?= htmlspecialchars((string) $row['life_expectancy']) ?></p>
+<p>Happy Planet Index: <?= htmlspecialchars((string) $row['hpi']) ?></p>
+```
+
+`htmlspecialchars()` ensures that text is displayed as text, not interpreted as HTML.
+
+## 11. Complete `country.php`
+
+This page uses the **same connection setup** as `index.php`. It checks the rank, retrieves one country, and displays a message if the rank is invalid or no country exists.
+
+```php
+<?php
+$title = 'Country Statistics';
+include 'includes/header.php';
+
+$rank = filter_var($_GET['rank'] ?? null, FILTER_VALIDATE_INT);
+?>
+
+<h2>Country Statistics</h2>
+
+<?php if (!$rank || $rank < 1): ?>
+    <p>Invalid country.</p>
+<?php else: ?>
+    <?php
+    $query = 'SELECT * FROM happiness_index WHERE `rank` = ?';
+
+    $statement = $conn->prepare($query);
+    $statement->bind_param('i', $rank);
+    $statement->execute();
+
+    $result = $statement->get_result();
+    $row = $result->fetch_assoc();
+
+    $statement->close();
+    ?>
+
+    <?php if ($row): ?>
+        <h3><?= htmlspecialchars($row['country']) ?></h3>
+        <p>Rank: <?= htmlspecialchars((string) $row['rank']) ?></p>
+        <p>Life Expectancy: <?= htmlspecialchars((string) $row['life_expectancy']) ?></p>
+        <p>Happy Planet Index: <?= htmlspecialchars((string) $row['hpi']) ?></p>
+    <?php else: ?>
+        <p>Country not found.</p>
+    <?php endif; ?>
+
+<?php endif; ?>
+
+<a href="index.php">Back to Countries</a>
+
+<?php include 'includes/footer.php'; ?>
+```
+
+Read the file from top to bottom: **connect → check rank → query → fetch → display**.
+
+Notice that we display the country name from the **database**, not from the URL. Someone can change the URL, but the database gives us the actual record.
 
 
-## tl;dr
+## 12. Two Kinds of Safety
 
-Prepared statements make web applications safer by separating the SQL query from user input, and properly sanitizing and escaping the input before it is added to the query. This ensures that user input is treated as data rather than as part of the SQL query, eliminating the possibility of SQL injection attacks.
+**Prepared statements** keep user input separate from SQL instructions. **`htmlspecialchars()`** safely displays text in HTML. They protect different parts of the application, so we use both.
+
+## 13. What Happens When Something Goes Wrong?
+
+| Situation | Example | Result |
+|---|---|---|
+| Valid rank, matching record | `country.php?rank=5` | Country statistics |
+| Missing or invalid rank | `country.php?rank=hello` | Invalid country |
+| Valid rank, no matching record | `country.php?rank=9999` | Country not found |
+
+A database connection or query failure is different from a missing record. During development, PHP may show diagnostic errors. On a live website, technical details should be logged rather than shown to visitors.
+
+## 14. Exercise — City Details
+
+In Lesson 12, we worked with the `cities` table. Now let's create a **Single Record View** for cities.
+
+### Part 1: City List (`cities.php`)
+
+Create a page that:
+
+1. Retrieves all cities from the database.
+2. Displays each city's **name** with a **View Details** link.
+3. Passes the selected city's ID through the URL.
+
+### Part 2: City Details (`city.php`)
+
+Create a page that:
+
+1. Reads and validates the city ID using `$_GET`.
+2. Uses a prepared statement to retrieve the selected city.
+3. Displays the **city name** and at least **two other details** from the database.
+4. Includes a **Back to Cities** link.
+5. Shows a helpful message if the city is not found.
+
+### Test Your Work
+
+- Do the View Details links display the correct city?
+- What happens if the ID is missing or invalid?
+- Does the Back to Cities link work?
+
+
+
