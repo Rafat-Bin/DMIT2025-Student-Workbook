@@ -10,7 +10,7 @@ In Lesson 12, we connected PHP to MySQL and displayed **multiple records**. In t
 
 ## 1. Set Up the Database
 
-Import `private/happiness_index.sql` into the `dmit2025` database using phpMyAdmin at `http://localhost:8081`. The Happy Planet Index dataset contains information about 152 countries.
+Import `data/happiness_index.sql` into the `dmit2025` database using phpMyAdmin at `http://localhost:8081`. The Happy Planet Index dataset contains information about 152 countries.
 
 Test the import:
 
@@ -46,9 +46,7 @@ $result = $conn->query($sql);
 
 Both use the same connection. This lesson uses the object-oriented style. We will introduce the `prepare()` method only after discussing user input.
 
-**Project note:** Keep the original `data/connect.php`, `includes/header.php`, and `includes/footer.php`. The full code below works with these existing files. The footer calls `db_disconnect($connection)`, so retain that helper from Lesson 12.
-
-## 4. Identify a Country
+**Project note:** Keep the original `data/connect.php`, `includes/header.php`, and `includes/footer.php`. The full code below works with these existing files.
 
 The `rank` column identifies the country we want to retrieve in this dataset.
 
@@ -139,7 +137,7 @@ $result = $conn->query($sql);
 <?php include 'includes/footer.php'; ?>
 ```
 
-**What is happening?** `$connection->query($sql)` runs the query. `$result->fetch_assoc()` gives us one row at a time. We display its rank and country, then create a link containing that rank.
+**What is happening?** `$conn->query($sql)` runs the query. `$result->fetch_assoc()` gives us one row at a time. We display its rank and country, then create a link containing that rank.
 
 **Try it:** Open `index.php` and hover over several View Stats links. Look for `?rank=` in the URLs.
 
