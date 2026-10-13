@@ -1,6 +1,6 @@
 # Lesson 13 — Single Record View
 
-**PHP and MySQL · Beginner Lecture Notes**
+
 
 ## Introduction
 
