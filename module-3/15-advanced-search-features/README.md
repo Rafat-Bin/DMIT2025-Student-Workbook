@@ -998,37 +998,5 @@ For example, if someone searches for `Alberta`, clicking page 2 should continue 
 
 **Hint:** You'll need to count the matching records, not all records, and include the search keyword in the pagination URLs.
 
-This is an optional challenge for now. We'll revisit combining features in Lesson 16.
+This is an optional challenge for now.
 
-### Part 5: Challenge — Dynamic City Search
-
-In Part 2 of this lesson, we learned how to build dynamic SQL queries using optional search conditions.
-
-As an additional challenge, add a minimum population field to your City Search form.
-
-Visitors should be able to:
-
-1. Search by city name or province.
-2. Enter a minimum population.
-3. Use both search options together.
-4. Leave either option empty.
-
-For example, a visitor might search for cities in `Alberta` with a population of at least `100000`.
-
-**Hint:** Use `WHERE 1 = 1`, add conditions with `.=` and store your parameters in an array.
-
-This challenge is optional. We'll practise combining multiple conditions again in Lesson 16.
-
-### Test Your Work
-
-| Test | Expected Result |
-|---|---|
-| Search by city name | Matching cities appear |
-| Search by province | Cities in matching provinces appear |
-| Search with a partial word | Partial matches appear |
-| Search for something nonexistent | A no-results message appears |
-| Submit an empty search | All cities appear |
-| Click View Details | The correct city opens |
-| Change pagination page (challenge) | Search keyword remains applied |
-| Search with minimum population (challenge) | Only cities meeting the population requirement appear |
-| Combine keyword and population (challenge) | Both conditions are applied |
