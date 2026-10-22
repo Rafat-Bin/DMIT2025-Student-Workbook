@@ -34,6 +34,8 @@ Open the Lesson 17 starter project in your code editor. We will use the existing
 
 ```text
 17-crud-read/
+├── data/
+│   ├── connect.php
 ├── private/
 │   ├── functions.php
 │   ├── prepared.php
