@@ -1,4 +1,4 @@
--- NOTE: This is the same table that we created in Lesson 14. If you do not already have it in phpMyAdmin, you may create the table and insert all of its values by selecting the course database and importing this file. 
+
 
 -- phpMyAdmin SQL Dump
 -- version 5.2.1
