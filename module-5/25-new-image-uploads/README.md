@@ -1,255 +1,617 @@
-# Uploading & Displaying Images in a PHP Application
+# Lesson 25 — Uploading and Managing Images with PHP
 
-## Table of Contents
+In Lesson 24, we learned how to create and resize images using PHP's GD library. In this lesson, we'll allow users to upload photographs through a web form. We'll build a small **photo gallery application** that accepts JPEG and PNG images, creates two image sizes, saves information in MySQL, and displays a gallery.
 
-- [The HTML Form for File Uploads](#the-html-form-for-file-uploads)
-- [The File Input Type](#the-file-input-type)
-- [The Files Superglobal Variable](#the-files-superglobal-variable)
-- [Common Image Handling Scenarios](#common-image-handling-scenarios)
+## 1. Learning Objectives
 
----
+By the end of this lesson, you should be able to:
 
-## The HTML Form for File Uploads
+- Explain how file uploads work in PHP.
+- Create an HTML form that accepts image files.
+- Access uploaded files using the `$_FILES` superglobal.
+- Validate image type, size, and upload status.
+- Generate a unique filename.
+- Use GD to create a thumbnail and a 720-pixel-wide image.
+- Save image information in MySQL.
+- Retrieve image records and display a gallery.
 
-An image can be uploaded and displayed in our PHP websites in multiple ways. The most common method of achieving this is by uploading the image into a directory on the server and updating its name (and any other metadata we need) in the database. 
+## 2. Understanding Image Uploads
 
-In order to do that, we need a `<form>` that will accept image files from the user. Below is an example of what this might look like:
+Until now, we have used HTML forms to collect text information such as names, emails, and passwords. We accessed those values in PHP using the $_POST superglobal.
 
-```PHP
-<form action="<?= htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="POST" enctype="multipart/form-data">
-    <!-- File Input -->
-    <label for="img-file">Image File</label>
-    <input type="file" id="img-file" name="img-file" class="form-control" accept=".png, .jpg, .jpeg, .webp" required>
+When uploading an image, we are sending an actual file from the user's computer to the web server. PHP provides a separate superglobal called $_FILES to access uploaded files.
 
-    <!-- Submit Button -->
-    <input type="submit" id="submit" name="submit" value="Upload">
-</form>
+```text
+User selects a photograph
+          ↓
+HTML form sends the file
+          ↓
+PHP receives the temporary upload
+          ↓
+PHP validates and processes it
+          ↓
+Image files and database record are saved
+          ↓
+Gallery displays the photograph
 ```
 
-When creating a form to handle file uploads in a PHP application, there are a few key considerations to ensure the data is transmitted correctly and securely.
+PHP initially places an uploaded file in a **temporary location**. We must process it before the request ends.
 
-Let's start with the `<form>` element itself and all of its required attributes, then get into some of the unique properties of `<input type="file">` and how to handle user-provided files. Specifically, we'll look at the following:
+### The `$_FILES` superglobal
 
-- `$_POST` method requirement
-- `enctype` attribute
-- `<input type="file">`
-- `accept` attribute
- 
- 
-### Why Use the POST Method?
+$_FILES is a built-in PHP associative array that contains information about uploaded files. For example, if our HTML form contains the following input:
 
-The POST method sends data in the body of the HTTP request rather than appending it to the URL (as is done with GET). This is crucial for file uploads because:
+`<input type="file" name="photo">`
 
-  - It allows for larger amounts of data to be transmitted.
-  - It securely sends binary data (which images are) without URL encoding issues.
-  
-Using POST also ensures that sensitive file data isn’t exposed in the URL, which is important for maintaining data integrity and security.
+PHP makes the uploaded file information available through $_FILES['photo']. The word photo comes from the name attribute of the HTML input.
 
+| Property | Purpose |
+|---|---|
+| `name` | Original filename on the user's computer |
+| `type` | File type reported by the browser; do not trust it for validation |
+| `tmp_name` | Temporary file location on the server |
+| `size` | File size in bytes |
+| `error` | Upload status or error code |
 
-### The `enctype` Attribute
-
-The `enctype` attribute defines how the form data is encoded when submitted to the server. For file uploads, you must use `enctype="multipart/form-data"`. This encoding type allows binary data (like images) to be sent in separate parts, each with its own content-type header.
-
-If you use the default encoding (`application/x-www-form-urlencoded`), the file data would be URL-encoded. This is not only inefficient for binary data but also can corrupt files and isn’t capable of handling large file sizes.
-
-
-## The File Input Type
-
-The `<input type="file">` element is a key HTML form control that allows users to select files from their local system for uploading to a server. Unlike other input types, file inputs have several unique attributes that help control which files can be selected and how they are handled.
-
-### Key Attributes
-
-#### **`accept`**  
-
-The `accept` attribute specifies the types of files that the server accepts. It can be used to restrict the file selection dialog to certain MIME types[^1] or file extensions. For example:  
-
-```HTML
-<input type="file" accept=".png, .jpg, .jpeg, .webp">
-```  
-
-This ensures that the file picker only displays files with the extensions `.png`, `.jpg`, `.jpeg`, or `.webp`. However, because this is a front-end validation method, it can easily be defeated. As developers, we should always double-check that the file type on the back-end. 
-
-#### **`multiple`**  
-
-The `multiple` attribute allows users to select more than one file at a time. Without this attribute, the file input will only permit a single file selection. Example:  
-
-```HTML
-  <input type="file" multiple>
-```
-  
-#### **`required`**  
-
-Adding the `required` attribute forces the user to select a file before the form can be submitted. Example:  
-
-```HTML
-  <input type="file" required>
+```php
+$_FILES['photo']['name'];
+$_FILES['photo']['tmp_name'];
+$_FILES['photo']['size'];
+$_FILES['photo']['error'];
 ```
 
-#### **`capture`**  
+PHP provides built-in constants that help us determine whether an upload was successful.
 
-The `capture` attribute is used primarily on mobile devices. It instructs the device to use a specific media capture mechanism (such as the camera or microphone) when choosing a file. For instance, specifying `capture="environment"` can directly open the rear camera for taking a photo:
+| Constant | Value | Meaning |
+|---|---|---|
+| `UPLOAD_ERR_OK` | 0 | File uploaded successfully |
+| `UPLOAD_ERR_INI_SIZE` | 1 | Server file size limit exceeded |
+| `UPLOAD_ERR_PARTIAL` | 3 | File was only partially uploaded |
+| `UPLOAD_ERR_NO_FILE` | 4 | User did not select a file |
 
-```HTML
-<input type="file" accept="image/*" capture="environment">
-```
+We validate uploads because users might select an oversized file, an unsupported type, or a file renamed to look like a JPEG.
 
+### PHP upload limits
 
----
-
-
-## The Files Superglobal Variable
-
-`＄_FILES` is a superglobal constant or predefined variable in PHP that can be used to associate array items that are uploaded through the HTTP POST method. It is a multi-dimensional array because the user may upload more than one file at a time. 
-
-When you have two separate file inputs in your HTML form like this:
-
-```HTML
-<label for="first-file">File Number 1:</label>
-<input type="file" id="first-file" name="first-file">
-
-<label for="second-file">File Number 2:</label>
-<input type="file" id="second-file" name="second-file">
-```
-
-... and the user uploads an image for each, the `$_FILES` superglobal will contain two top-level keys—one for each input field. Each of these keys maps to an associative array with details about the uploaded file. For example, the expanded structure may look something like this:
-
-```PHP
-$_FILES = array(
-    'first-file' => array(
-        'name'     => 'firstimage.jpg',
-        'type'     => 'image/jpeg',
-        'tmp_name' => '/tmp/phpYzdqkD',
-        'error'    => 0,
-        'size'     => 123456
-    ),
-    'second-file' => array(
-        'name'     => 'secondimage.png',
-        'type'     => 'image/png',
-        'tmp_name' => '/tmp/phpABC123',
-        'error'    => 0,
-        'size'     => 654321
-    )
-);
-```
-
-
-### Key Properties of $_FILES
-
-The file in the properties listed below is the name of the variable that contains the file.
-
-＄_FILES['file']['name']: The original filename of the uploaded file..
-
-＄_FILES['file']['type']: The MIME type of the file (as reported by the browser).
-
-＄_FILES['file']['size']: This is the size of the file to be uploaded in bytes.
-
-＄_FILES['file']['tmp_name']: The temporary file path on the server where the file is stored until PHP is finished handling the file (and it is deleted) or it is moved (which can be done with the `move_uploaded_file()` method).
-
-＄_FILES['file']['error']: An error code that indicates whether the upload was successful. A value of 0 means there was no error.
-
-The error codes are as follow[^2]:
-
-```PHP
-array(
-  0 => 'There is no error, the file uploaded with success', // UPLOAD_ERR_OK
-  1 => 'The uploaded file exceeds the upload_max_filesize directive in php.ini', // UPLOAD_ERR_INI_SIZE
-  2 => 'The uploaded file exceeds the MAX_FILE_SIZE directive that was specified in the HTML form', // UPLOAD_ERR_FORM_SIZE 
-  3 => 'The uploaded file was only partially uploaded', // UPLOAD_ERR_PARTIAL
-  4 => 'No file was uploaded', // UPLOAD_ERR_NO_FILE
-  6 => 'Missing a temporary folder', // UPLOAD_ERR_NO_TMP_DIR
-  7 => 'Failed to write file to disk.', // UPLOAD_ERR_CANT_WRITE
-  8 => 'A PHP extension stopped the file upload.' // UPLOAD_ERR_EXTENSION
-);
-```
-
-
-## PHP File Size Limits
-
-By default, PHP limits file uploads to 2MB. You can change this limit by adjusting the `upload_max_filesize` and `post_max_filesize` values in your `php.ini` file. For example:
+PHP provides configuration settings that control how much data users can upload to the server.
 
 ```ini
-    upload_max_size = 10M
-    post_max_filesize = 10M
+upload_max_filesize = 10M
+post_max_size = 12M
 ```
 
-To find out where your `php.ini` files are located, run `phpinfo()`.
+upload_max_filesize = 10M: This setting specifies the maximum size of an individual uploaded file. In this example, PHP allows an individual file of up to 10 MB.
 
----
+post_max_size = 12M: This setting specifies the maximum size of the entire POST request. The POST request may contain uploaded files, text fields, and form encoding overhead. Therefore, we generally set post_max_size higher than upload_max_filesize.
 
-## Common Image Handling Scenarios
+Although the server allows individual files of up to 10 MB, our gallery application only allows photographs of up to 5 MB. Therefore, we enforce an additional restriction in our PHP code later.
 
-### Assigning a File Name
+## 3. Creating an Image Upload Form
 
-It's extremely unlikely that you will encounter a filename collision using the uniqid() function since it is based on the current time in microseconds. However, it's still theoretically possible, especially if you're writing an app with millions upon millions of active users, all uploading everything all at once. To add an extra level of safety, you can use a do/while loop to check if a file with that name already exists, and if it does, generate a new name.
+Our first page, `index.php`, gives users a way to select and submit one photograph. A separate `upload.php` page will handle the submitted file.
 
-```PHP
-    do {
+### Application structure
 
-    } while ();
+Create the following folders and files:
+
+```text
+l25-image-uploads/
+├── private/
+│   └── connect.php
+├── public/
+│   ├── index.php
+│   ├── upload.php
+│   ├── gallery.php
+│   └── images/
+│       ├── thumbnails/
+│       └── full/
+└── init.sql
 ```
 
+| File or folder | Why it exists |
+|---|---|
+| `public/index.php` | Displays the upload form |
+| `public/upload.php` | Validates, resizes, saves, and records uploaded images |
+| `private/connect.php` | Centralizes the MySQL connection |
+| `public/gallery.php` | Displays saved photographs |
+| `init.sql` | Creates the database and image table |
+| `public/images/thumbnails/` | Stores small images |
+| `public/images/full/` | Stores 720-pixel-wide images |
 
-### Cropping & Resizing
+Create both image folders before testing. The web server must be able to write to them.
 
-#### Aspect Ratio Challenges
+### Complete `public/index.php`
 
-If we're allowing our user to upload images to our platform, we don't necessarily know what dimensions or aspect ratio this image will be. Broadly, it can be one of three things: 
+```php
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload a Photograph</title>
+</head>
+<body>
+    <main>
+        <h1>Upload a Photograph</h1>
+        <p>Select a JPEG or PNG photograph to add to the gallery.
+           The maximum file size is 5 MB.</p>
 
-1. a square image (where the height and width are equal);
-2. a portrait image (a tall image, where the height is greater than the width); or
-3. a landscape image (a wide image, where the width is greater than the height).
+        <form action="upload.php" method="post" enctype="multipart/form-data">
+            <label for="photo">Choose a photograph</label>
+            <input type="file" id="photo" name="photo"
+                   accept=".jpg,.jpeg,.png" required>
+            <button type="submit">Upload Photograph</button>
+        </form>
 
-Since users can upload images with any aspect ratio, you need to standardize them to a few fixed dimensions:
+        <p><a href="gallery.php">View Photo Gallery</a></p>
+    </main>
+</body>
+</html>
+```
 
-    Landscape Images: Typically resized to 1280×720.
+**Why these attributes matter:**
 
-    Portrait Images: Typically resized to 720×1280.
+- `action="upload.php"` sends the form to our processing page.
+- `method="post"` sends the file in the request body.
+- `enctype="multipart/form-data"` is required to upload files.
+- `type="file"` displays a file picker.
+- `name="photo"` is the key used in `$_FILES['photo']`.
+- `accept=".jpg,.jpeg,.png"` helps users choose supported files, but is **not** a security check.
 
-    Square Images: Typically resized to 720×720.
+**Test:** Open `index.php`. You should see a file picker, an upload button, and a gallery link. Uploading will not work until we create `upload.php`.
 
-The "Cover" Technique:
-This approach involves scaling the image so that it completely covers the target dimensions without stretching. Here’s how it works:
+## 4. Uploading, Validating, and Processing Images
 
-    Calculate Scaling Factors:
-    Compute the scale factors for both width and height, then choose the larger factor. This ensures that after scaling, the image fills the target area.
+`upload.php` receives the file submitted by `index.php`. Its job is to check the upload, open the photograph with GD, and generate two image versions.
 
-    Resize the Image:
-    Use imagecopyresampled() to resize the image based on the new dimensions.
+### Step 1 — Check the upload status
 
-    Center-Crop:
-    Once the image is resized, determine the offset required to crop the center of the image so it exactly fits the target dimensions. This avoids any distortion or stretching, even if some parts of the image are cropped out.
+```php
+if (!isset($_FILES['photo']) ||
+    $_FILES['photo']['error'] !== UPLOAD_ERR_OK) {
+    exit('The photograph could not be uploaded.');
+}
+```
 
-Square-Cropping for Thumbnails:
-When creating square thumbnails, the algorithm finds the smallest dimension (using min($width_orig, $height_orig)) to define the side length of the square. It then calculates the offsets to crop the image centrally, ensuring a balanced thumbnail without stretching.
+`isset()` checks that the expected file input exists. The `error` value tells us whether PHP received the file successfully.
 
+### Step 2 — Check the file size
 
+```php
+$maxSize = 5 * 1024 * 1024;
 
-### Square-Cropping Algorithm
+if ($_FILES['photo']['size'] > $maxSize) {
+    exit('The photograph must be smaller than 5 MB.');
+}
+```
 
-To create a square thumbnail from an image, regardless of whether it's portrait, landscape, or already square, we need to figure out what the smallest dimension is. This is because a square has equal height and width, so we need to find the maximum square that fits inside the original image. We then crop the image to this square, so that it keeps the most important parts of the image (... errr, in most images. If the composition angles things a little differently, or falls on visual thirds or the golden ratio or whatever, we may not be so lucky), without stretching or squashing the image.
+PHP reports sizes in bytes; 5 × 1024 × 1024 is 5 MB.
 
-The min($width_orig, $height_orig) line is finding the smallest size between the width and height of the original image. This will be the size of the sides of our square crop.
+### Step 3 — Inspect the actual file type
 
-The next two lines are calculating the starting point (top-left corner) for the cropping process. Essentially, we want to crop around the center of the image, so we need to figure out where to start cropping from.
+We use `finfo` to read the MIME type from the temporary file. This is more reliable than trusting the filename or the browser-reported `type`.
 
-If the image is wider than it is tall ($width_orig > $smaller_size), we start cropping from the center of the width, hence ($width_orig - $smaller_size) / 2. Otherwise, we start cropping from the left edge of the image, hence 0.
+```php
+$tempFile = $_FILES['photo']['tmp_name'];
+$finfo = new finfo(FILEINFO_MIME_TYPE);
+$mimeType = $finfo->file($tempFile);
 
-Similarly, if the image is taller than it is wide ($height_orig > $smaller_size), we start cropping from the center of the height, hence ($height_orig - $smaller_size) / 2. Otherwise, we start cropping from the top edge of the image, hence 0.
+if (!in_array($mimeType, ['image/jpeg', 'image/png'], true)) {
+    exit('Only JPEG and PNG photographs are allowed.');
+}
+```
 
+| Format | MIME type |
+|---|---|
+| JPEG | `image/jpeg` |
+| PNG | `image/png` |
 
-### Preserving Transparency
+### Step 4 — Read the dimensions
 
-When working with PNG or WEBP images, preserving transparency is crucial. Use:
+```php
+$dimensions = getimagesize($tempFile);
 
-  - `imagealphablending($image, false);`
-  - `imagesavealpha($image, true);`
+if ($dimensions === false) {
+    exit('The uploaded file is not a valid image.');
+}
 
-These functions disable blending and ensure that the alpha channel (transparency) is saved when the image is output.
+$width = $dimensions[0];
+$height = $dimensions[1];
 
----
+if ($width < 720) {
+    exit('Please choose a photograph at least 720 pixels wide.');
+}
+```
 
-## Footnotes
+We need the original dimensions to calculate the resized height. For this lesson, we require images at least 720 pixels wide so we never need to enlarge a smaller photograph.
 
-[^1]: [Common MIME Types (MDN)](https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/MIME_types/Common_types)
+### Step 5 — Generate a unique filename
 
-[^2]: [$_FILES Error Messages Explained (PHP.net)](https://www.php.net/manual/en/features.file-upload.errors.php)
+Two users might upload a file named `photo.jpg`. To avoid overwriting one upload with another, we generate a random name and use the correct extension.
+
+```php
+$extension = $mimeType === 'image/png' ? 'png' : 'jpg';
+$filename = bin2hex(random_bytes(16)) . '.' . $extension;
+```
+
+Both generated images will share this filename but live in different folders.
+
+### Step 6 — Load the image with GD
+
+```php
+if ($mimeType === 'image/png') {
+    $image = imagecreatefrompng($tempFile);
+} else {
+    $image = imagecreatefromjpeg($tempFile);
+}
+
+if ($image === false) {
+    exit('The photograph could not be opened.');
+}
+```
+
+This is the same GD technique we practised in Lesson 24, now applied to a user-uploaded photograph.
+
+### Step 7 — Resize the image
+
+We need a **200-pixel-wide thumbnail** and a **720-pixel-wide larger version**. Both should preserve the photograph's proportions.
+
+Rather than repeating the resizing code, we'll use one function twice:
+
+```php
+function resizeImage($image, $width, $height, $newWidth, $destination, $mimeType)
+{
+    $newHeight = (int) round($height * ($newWidth / $width));
+    $resized = imagecreatetruecolor($newWidth, $newHeight);
+
+    if ($mimeType === 'image/png') {
+        imagealphablending($resized, false);
+        imagesavealpha($resized, true);
+    }
+
+    imagecopyresampled(
+        $resized, $image,
+        0, 0, 0, 0,
+        $newWidth, $newHeight,
+        $width, $height
+    );
+
+    if ($mimeType === 'image/png') {
+        return imagepng($resized, $destination);
+    }
+
+    return imagejpeg($resized, $destination, 85);
+}
+```
+
+The function calculates the new height, creates an image, resamples the original, and saves the result. The PNG-specific lines preserve transparent areas in PNG images.
+
+### Step 8 — Save the two versions
+
+```php
+$thumbnailPath = __DIR__ . '/images/thumbnails/' . $filename;
+$fullPath = __DIR__ . '/images/full/' . $filename;
+
+$thumbnailSaved = resizeImage(
+    $image, $width, $height, 200, $thumbnailPath, $mimeType
+);
+
+$fullSaved = resizeImage(
+    $image, $width, $height, 720, $fullPath, $mimeType
+);
+```
+
+`__DIR__` refers to the folder containing `upload.php`. It helps PHP build reliable server paths.
+
+If either save fails, we should remove any partially saved files:
+
+```php
+if (!$thumbnailSaved || !$fullSaved) {
+    if (file_exists($thumbnailPath)) {
+        unlink($thumbnailPath);
+    }
+    if (file_exists($fullPath)) {
+        unlink($fullPath);
+    }
+    exit('The photographs could not be saved.');
+}
+```
+
+We do not keep an additional copy of the original upload because the gallery only needs these two versions. PHP removes the temporary upload when the request ends.
+
+## 5. Saving Image Information in MySQL
+
+The image files are stored in folders, but the gallery also needs a list of uploaded photographs. We'll store that information in a single MySQL table.
+
+### Step 1 — Create `init.sql`
+
+```sql
+USE dmit2025;
+
+CREATE TABLE IF NOT EXISTS images (
+    image_id INT AUTO_INCREMENT PRIMARY KEY,
+    filename VARCHAR(100) NOT NULL,
+    mime_type VARCHAR(30) NOT NULL,
+    original_width INT NOT NULL,
+    original_height INT NOT NULL,
+    uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+Run this SQL in your database management tool.
+
+| Column | Purpose |
+|---|---|
+| `image_id` | Unique record identifier |
+| `filename` | Filename shared by both versions |
+| `mime_type` | JPEG or PNG |
+| `original_width` | Original width |
+| `original_height` | Original height |
+| `uploaded_at` | Upload date and time |
+
+We don't need two filename columns: the images use the same name in different folders.
+
+### Step 2 — Create `private/connect.php`
+
+This file holds the database connection so both `upload.php` and `gallery.php` can reuse it.
+
+```php
+<?php
+
+$host = 'mysql';
+$username = 'student';
+$password = 'student';
+$database = 'dmit2025';
+
+$conn = new mysqli($host, $username, $password, $database);
+
+if ($conn->connect_error) {
+    error_log($conn->connect_error);
+    exit('Database connection failed.');
+}
+
+$conn->set_charset('utf8mb4');
+```
+
+Replace the credentials with those used by your local environment.
+
+### Step 3 — Insert the image information
+
+After the two image versions have been saved, `upload.php` inserts a database record using a prepared statement:
+
+```php
+require __DIR__ . '/../private/connect.php';
+
+$sql = "INSERT INTO images
+        (filename, mime_type, original_width, original_height)
+        VALUES (?, ?, ?, ?)";
+
+$stmt = $conn->prepare($sql);
+$stmt->bind_param('ssii', $filename, $mimeType, $width, $height);
+$stmt->execute();
+```
+
+`ssii` means two strings and two integers. Prepared statements keep the SQL separate from the inserted values.
+
+### Complete `public/upload.php`
+
+Here is the entire processing page assembled in one place:
+
+```php
+<?php
+// 1. Check the upload.
+if (!isset($_FILES['photo']) ||
+    $_FILES['photo']['error'] !== UPLOAD_ERR_OK) {
+    exit('The photograph could not be uploaded.');
+}
+
+// 2. Check the size.
+$maxSize = 5 * 1024 * 1024;
+if ($_FILES['photo']['size'] > $maxSize) {
+    exit('The photograph must be smaller than 5 MB.');
+}
+
+// 3. Check the actual file type.
+$tempFile = $_FILES['photo']['tmp_name'];
+$finfo = new finfo(FILEINFO_MIME_TYPE);
+$mimeType = $finfo->file($tempFile);
+
+if (!in_array($mimeType, ['image/jpeg', 'image/png'], true)) {
+    exit('Only JPEG and PNG photographs are allowed.');
+}
+
+// 4. Read the dimensions.
+$dimensions = getimagesize($tempFile);
+if ($dimensions === false) {
+    exit('The uploaded file is not a valid image.');
+}
+
+$width = $dimensions[0];
+$height = $dimensions[1];
+
+if ($width < 720) {
+    exit('Please choose a photograph at least 720 pixels wide.');
+}
+
+// 5. Generate a unique filename.
+$extension = $mimeType === 'image/png' ? 'png' : 'jpg';
+$filename = bin2hex(random_bytes(16)) . '.' . $extension;
+
+// 6. Load the photograph.
+if ($mimeType === 'image/png') {
+    $image = @imagecreatefrompng($tempFile);
+} else {
+    $image = @imagecreatefromjpeg($tempFile);
+}
+
+if ($image === false) {
+    exit('The photograph could not be opened.');
+}
+
+// 7. Define the resizing function.
+function resizeImage($image, $width, $height, $newWidth, $destination, $mimeType)
+{
+    $newHeight = (int) round($height * ($newWidth / $width));
+    $resized = imagecreatetruecolor($newWidth, $newHeight);
+
+    if ($mimeType === 'image/png') {
+        imagealphablending($resized, false);
+        imagesavealpha($resized, true);
+    }
+
+    imagecopyresampled(
+        $resized, $image,
+        0, 0, 0, 0,
+        $newWidth, $newHeight,
+        $width, $height
+    );
+
+    if ($mimeType === 'image/png') {
+        return imagepng($resized, $destination);
+    }
+
+    return imagejpeg($resized, $destination, 85);
+}
+
+// 8. Create the two image versions.
+$thumbnailPath = __DIR__ . '/images/thumbnails/' . $filename;
+$fullPath = __DIR__ . '/images/full/' . $filename;
+
+$thumbnailSaved = resizeImage(
+    $image, $width, $height, 200, $thumbnailPath, $mimeType
+);
+$fullSaved = resizeImage(
+    $image, $width, $height, 720, $fullPath, $mimeType
+);
+
+if (!$thumbnailSaved || !$fullSaved) {
+    if (file_exists($thumbnailPath)) {
+        unlink($thumbnailPath);
+    }
+    if (file_exists($fullPath)) {
+        unlink($fullPath);
+    }
+    exit('The photographs could not be saved.');
+}
+
+// 9. Save the metadata in MySQL.
+require __DIR__ . '/../private/connect.php';
+
+try {
+    $sql = "INSERT INTO images
+            (filename, mime_type, original_width, original_height)
+            VALUES (?, ?, ?, ?)";
+
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param('ssii', $filename, $mimeType, $width, $height);
+    $stmt->execute();
+} catch (mysqli_sql_exception $e) {
+    error_log($e->getMessage());
+    unlink($thumbnailPath);
+    unlink($fullPath);
+    exit('The photograph information could not be saved.');
+}
+
+// 10. Open the gallery.
+header('Location: gallery.php');
+exit();
+```
+
+The steps are: validate the upload, read its dimensions, generate a filename, load the image, save two versions, insert the database record, and redirect to the gallery.
+
+**Note:** This is a classroom example. A public upload service needs additional safeguards, including stricter resource limits and access controls.
+
+## 6. Displaying an Image Gallery
+
+`gallery.php` shows photographs that have already been uploaded. It reads filenames from MySQL, displays thumbnails, and links them to the larger images.
+
+### Complete `public/gallery.php`
+
+```php
+<?php
+require __DIR__ . '/../private/connect.php';
+
+$sql = "SELECT image_id, filename, uploaded_at
+        FROM images
+        ORDER BY uploaded_at DESC, image_id DESC";
+$result = $conn->query($sql);
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Photo Gallery</title>
+</head>
+<body>
+    <main>
+        <h1>Photo Gallery</h1>
+        <p><a href="index.php">Upload Another Photograph</a></p>
+
+        <?php if ($result->num_rows === 0): ?>
+            <p>No photographs have been uploaded yet.</p>
+        <?php else: ?>
+            <div class="gallery">
+                <?php while ($row = $result->fetch_assoc()): ?>
+                    <?php
+                    $filename = htmlspecialchars(
+                        $row['filename'], ENT_QUOTES, 'UTF-8'
+                    );
+                    $thumbnail = 'images/thumbnails/' . $filename;
+                    $full = 'images/full/' . $filename;
+                    ?>
+                    <a href="<?= $full; ?>">
+                        <img src="<?= $thumbnail; ?>"
+                             alt="Uploaded photograph" width="200">
+                    </a>
+                <?php endwhile; ?>
+            </div>
+        <?php endif; ?>
+    </main>
+</body>
+</html>
+```
+
+The query lists the newest images first. `fetch_assoc()` retrieves one database row at a time. We construct the thumbnail and larger image paths using the stored filename. The `<img>` element displays the thumbnail, while the surrounding `<a>` opens the 720-pixel-wide version.
+
+`htmlspecialchars()` escapes dynamic values before they appear in HTML.
+
+### Test the complete application
+
+1. Open `index.php`.
+2. Select a valid JPEG or PNG photograph at least 720 pixels wide.
+3. Click **Upload Photograph**.
+4. Confirm that the browser redirects to `gallery.php`.
+5. Confirm that the thumbnail appears.
+6. Click the thumbnail to view the larger image.
+7. Check that both image folders contain the same generated filename.
+8. Check that the `images` database table contains the new record.
+
+## 7. Exercise 29 — Working with Multiple Photographs
+
+Use the completed application from this lesson. You do not need to create a new project.
+
+### Part A — Upload photographs
+
+Choose three different JPEG or PNG photographs. Each must be smaller than 5 MB and at least 720 pixels wide. Upload them **one at a time** using `index.php`.
+
+### Part B — Check the image files
+
+Confirm that each upload created:
+
+- A 200-pixel-wide image in `images/thumbnails/`.
+- A 720-pixel-wide image in `images/full/`.
+
+Check that both versions preserve the original proportions.
+
+### Part C — Check MySQL
+
+Open the `images` table and confirm that every successful upload created a record with a different generated filename.
+
+### Part D — Test validation
+
+Try uploading an unsupported file, an image smaller than 720 pixels wide, and (if available) a file larger than 5 MB. Confirm that the application rejects invalid uploads.
+
+### Part E — Test the gallery
+
+Confirm that all successfully uploaded photographs appear as thumbnails, clicking each thumbnail opens the larger version, and the newest photographs appear first.
