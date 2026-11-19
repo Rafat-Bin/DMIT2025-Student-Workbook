@@ -107,6 +107,9 @@ The order matters: we create the image first, choose a colour, fill the image, a
 - `header('Content-Type: image/png')` tells the browser that PHP is sending a PNG image. `image/png` is called a **MIME type**.
 - `imagepng()` sends the image to the browser.
 
+MIME stands for Multipurpose Internet Mail Extensions.A MIME type, also known as a media type, is a standardized identifier that describes the type and format of a file or other content. It helps browsers, web servers, and applications understand how to handle that content.
+
+
 Open `01-square.php` in your browser. You should see a green square, not a normal HTML page. The browser can display it because `header()` tells it to expect a PNG image, and `imagepng()` sends the actual image data.
 
 This page **displays** the square but does not save a PNG file to the `images` folder. In the next example, we will save an image to disk instead.
