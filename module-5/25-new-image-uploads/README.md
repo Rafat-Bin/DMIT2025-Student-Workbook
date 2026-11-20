@@ -189,7 +189,7 @@ PHP reports sizes in bytes; 5 × 1024 × 1024 is 5 MB.
 
 ### Step 3 — Inspect the actual file type
 
-We use `finfo` to read the MIME type from the temporary file. This is more reliable than trusting the filename or the browser-reported `type`.
+We must validate the actual file type before processing the uploaded photograph. We cannot rely on the file extension or the MIME type reported by the browser because these can be manipulated. For example, a user could rename a PDF file from `document.pdf` to `photo.jpg`, but this does not convert it into a JPEG image.
 
 ```php
 $tempFile = $_FILES['photo']['tmp_name'];
@@ -200,11 +200,33 @@ if (!in_array($mimeType, ['image/jpeg', 'image/png'], true)) {
     exit('Only JPEG and PNG photographs are allowed.');
 }
 ```
+- `$_FILES['photo']['tmp_name']` retrieves the temporary location of the uploaded file on the server and stores it in `$tempFile`.
 
-| Format | MIME type |
+- `new finfo(FILEINFO_MIME_TYPE)` creates a File Information object configured to detect the MIME type of a file.
+
+- `$finfo->file($tempFile)` examines the actual contents of the temporary file, detects its MIME type, and stores the result in `$mimeType`.
+
+- `in_array()` checks whether the detected MIME type exists in the array of allowed MIME types (`image/jpeg` and `image/png`).
+
+- The third argument, `true`, enables strict comparison, meaning both the value and data type must match.
+
+- The `!` operator reverses the result of `in_array()`, making the condition true when the MIME type is not allowed.
+
+- `exit()` displays an error message and stops the execution of the PHP script.
+
+For example:
+
+| Detected MIME Type | Result |
 |---|---|
-| JPEG | `image/jpeg` |
-| PNG | `image/png` |
+| `image/jpeg` | Accepted |
+| `image/png` | Accepted |
+| `image/gif` | Rejected |
+| `image/webp` | Rejected |
+| `application/pdf` | Rejected |
+
+This validation helps prevent unsupported or disguised files from being processed by our application. If the detected MIME type is JPEG or PNG, PHP continues to the next validation step.
+
+MIME type validation alone does not guarantee that the image is valid. We will perform additional checks before resizing and saving the photograph.
 
 ### Step 4 — Read the dimensions
 
