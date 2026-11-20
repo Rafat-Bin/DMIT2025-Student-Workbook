@@ -255,7 +255,7 @@ Two users might upload a file named `photo.jpg`. To avoid overwriting one upload
 $extension = $mimeType === 'image/png' ? 'png' : 'jpg';
 $filename = bin2hex(random_bytes(16)) . '.' . $extension;
 ```
-
+The purpose of this step is to generate a unique filename for each uploaded photograph to prevent naming conflicts and accidental overwriting when multiple users upload files with the same name. The first line uses a ternary operator to determine the appropriate file extension (png or jpg) based on the validated MIME type. The second line uses random_bytes(16) to generate 16 random bytes and bin2hex() to convert them into a 32-character hexadecimal string. Finally, the concatenation operator (.) combines the generated string, a period, and the file extension to create a unique filename that will be used when saving the photograph and its metadata in the database.
 Both generated images will share this filename but live in different folders.
 
 ### Step 6 — Load the image with GD
