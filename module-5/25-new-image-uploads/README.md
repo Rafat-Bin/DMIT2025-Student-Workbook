@@ -153,7 +153,7 @@ Create both image folders before testing. The web server must be able to write t
 
 - `action="upload.php"` sends the form to our processing page.
 - `method="post"` sends the file in the request body.
-- `enctype="multipart/form-data"` is required to upload files.
+- `enctype="multipart/form-data"` attribute specifies how the browser encodes and sends form data to the web server. By default, HTML forms use application/x-www-form-urlencoded, which is suitable for submitting text information but does not transmit the actual contents of uploaded files. When uploading files such as photographs, PDFs, or documents, we must use multipart/form-data. This encoding type divides the form data into separate parts, allowing each text field and uploaded file to be transmitted with its own information,
 - `type="file"` displays a file picker.
 - `name="photo"` is the key used in `$_FILES['photo']`.
 - `accept=".jpg,.jpeg,.png"` helps users choose supported files, but is **not** a security check.
