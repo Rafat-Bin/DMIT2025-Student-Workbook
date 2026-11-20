@@ -276,9 +276,10 @@ This is the same GD technique we practised in Lesson 24, now applied to a user-u
 
 ### Step 7 — Resize the image
 
+
 We need a **200-pixel-wide thumbnail** and a **720-pixel-wide larger version**. Both should preserve the photograph's proportions.
 
-Rather than repeating the resizing code, we'll use one function twice:
+Rather than repeating the resizing code, we'll define a reusable function and call it twice with different widths and destination paths.
 
 ```php
 function resizeImage($image, $width, $height, $newWidth, $destination, $mimeType)
@@ -306,8 +307,41 @@ function resizeImage($image, $width, $height, $newWidth, $destination, $mimeType
 }
 ```
 
-The function calculates the new height, creates an image, resamples the original, and saves the result. The PNG-specific lines preserve transparent areas in PNG images.
+#### Function Parameters
 
+| Parameter | Description |
+|---|---|
+| `$image` | The original GD image object. |
+| `$width` | The original image width. |
+| `$height` | The original image height. |
+| `$newWidth` | The desired width of the resized image. |
+| `$destination` | The file path where the resized image will be saved. |
+| `$mimeType` | The validated MIME type of the original image. |
+
+#### How the Function Works
+
+1. **Calculate the new height:** Calculate the proportional height based on the new width to maintain the original aspect ratio and prevent image distortion.
+
+2. **Create a blank image:** Use `imagecreatetruecolor()` to create a new blank image with the desired width and calculated height.
+3. **Preserve PNG transparency:** Unlike JPEG images, PNG images support transparency through an alpha channel. The alpha channel stores transparency information, which determines how visible or see-through each pixel is. A pixel can be fully visible (opaque), partially transparent, or completely transparent. For example, a PNG logo with a transparent background allows the website's background colour to show through.
+
+   Therefore, we need two additional functions when processing PNG images:
+
+   - `imagealphablending($resized, false)` disables alpha blending so that the original pixel colours and their transparency information are retained when copying pixels into the new image.
+   - `imagesavealpha($resized, true)` ensures that the alpha channel is preserved when saving the resized PNG image.
+
+   Without these settings, transparent or partially transparent areas may lose their transparency or appear black.
+
+   These additional steps are not required for JPEG images because JPEG only stores colour information and does not support an alpha channel. Therefore, when processing a JPEG image, PHP skips this conditional block and continues with the resizing process.
+4. **Resize the original image:** Use `imagecopyresampled()` to copy and resize the original photograph into the new blank image. This function uses interpolation to produce a smoother, higher-quality resized image.
+
+5. **Save the resized image:** Check the MIME type and use the appropriate function to save the image:
+   - `imagepng()` saves the resized image in PNG format.
+   - `imagejpeg()` saves the resized image in JPEG format with a quality setting of 85 out of 100.
+
+6. **Return the result:** The function returns a Boolean value indicating whether the image-saving operation reports success or failure.
+
+**Note:** At this stage, we are only defining the function, not executing it. In the next step, we will call this function twice to create and save the thumbnail and the larger version of the photograph.
 ### Step 8 — Save the two versions
 
 ```php
